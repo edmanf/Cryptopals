@@ -94,7 +94,7 @@ class TestSet1:
         key_size = 16
         
         f = open(input_file)
-        hex_strings = f.readlines()
+        hex_strings = [x.rstrip('\n') for x in f.readlines()]
         f.close()
         input = [convert.hex_string_to_bytes(x) for x in hex_strings]
         
