@@ -72,6 +72,7 @@ class TestSet1:
     def test_c7_AES_in_ECB_mode(self):
         key = "YELLOW SUBMARINE"
         input_file = "res/7.txt"
+        expected_file = "res/7_expected.txt"
         
         f = open(input_file)
         b64_text = f.read()
@@ -79,16 +80,28 @@ class TestSet1:
         
         ciphertext = convert.b64_string_to_hex_bytes(b64_text)
         
+        f = open(expected_file)
+        expected = f.read()
+        f.close()
+        
         actual = crypt.aes_ecb(ciphertext, bytearray(key, "utf-8"))
         
-        assert actual == expected # actual currently leaves 4 EOT bytes
+        assert actual.decode() == expected # actual currently leaves 4 EOT bytes
         
     def test_c8_detect_AES_in_ECB_mode(self):
         input_file = "res/8.txt"
+        expected_file = "res/8_expected.txt"
         key_size = 16
+        
         f = open(input_file)
         hex_strings = f.readlines()
+        f.close()
         input = [convert.hex_string_to_bytes(x) for x in hex_strings]
         
+        f = open(expected_file)
+        expected = convert.hex_string_to_bytes(f.read())
+        f.close()
+        
         actual = crypt.detect_AES_ECB(input, key_size)
-        print(actual)
+        
+        assert actual == expected
