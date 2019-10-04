@@ -1,5 +1,16 @@
 """ A collection of utility functions. """
 
+def PKCS7_pad(message, pad_length, pad_byte = b'\x04'):
+    """ Pads a message by adding pad_byte to the end of a message
+    until it is a multiple of pad_length and return the result."""
+    
+    padded = message.copy()
+    diff = len(message) % pad_length
+    
+    if diff > 0:
+        padded += pad_byte * (pad_length - diff)
+    return padded
+
 def get_hamming_distance(a, b):
     """ Compute the hamming distance between two strings as bytes-like and return it.
     Hamming distance is the number of different bits between strings.

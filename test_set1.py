@@ -2,6 +2,7 @@ import io
 
 import convert
 import crypt
+import xor
 
 class TestSet1:
     def test_c1_convert_hex_to_base64(self):
@@ -18,7 +19,7 @@ class TestSet1:
         
         a = convert.hex_string_to_bytes(input1)
         b = convert.hex_string_to_bytes(input2)
-        actual = crypt.fixed_XOR(a, b).hex()
+        actual = xor.fixed_XOR(a, b).hex()
         
         assert actual == expected
 
@@ -27,7 +28,7 @@ class TestSet1:
         expected = "Cooking MC's like a pound of bacon" # From solving the challenge
         
         a = convert.hex_string_to_bytes(input1)
-        actual = crypt.single_byte_XOR(a).message
+        actual = xor.single_byte_XOR(a).message
         assert actual.decode() == expected
 
     def test_c4_detect_single_character_XOR(self):
@@ -37,7 +38,7 @@ class TestSet1:
         f = open(input1)
         lines = [convert.hex_string_to_bytes(x.strip('\n')) for x in list(f)]
         f.close()
-        actual = crypt.detect_single_character_XOR(lines).message
+        actual = xor.detect_single_character_XOR(lines).message
         assert actual.decode() == expected
 
     def test_c5_implement_repeating_key_XOR(self):
@@ -48,7 +49,7 @@ class TestSet1:
         f = open(input_file)
         plaintext = bytearray(f.read(), "utf-8")
         f.close()
-        actual = crypt.repeating_key_XOR(plaintext, bytearray(key, "utf-8"))
+        actual = xor.repeating_key_XOR(plaintext, bytearray(key, "utf-8"))
 
         assert actual == convert.hex_string_to_bytes(expected)
         
@@ -65,7 +66,7 @@ class TestSet1:
         f.close()
 
         input = convert.b64_string_to_hex_bytes(b64_text)
-        actual = crypt.decrypt_repeating_key_XOR(input)
+        actual = xor.decrypt_repeating_key_XOR(input)
         
         assert(actual.decode() == expected)
         
