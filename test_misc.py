@@ -1,6 +1,16 @@
 import utils
+import crypt
 
-class TestUtils:
+class TestMisc:
+    def test_AES_ECB(self):
+        message = bytearray("THE QUICK BROWN FOX", "utf-8")
+        message = utils.PKCS7_pad(message, 16)
+        key = bytearray("YELLOW SUBMARINE", "utf-8")
+        
+        ciphertext = crypt.aes_ecb_encrypt(message, key)
+        plaintext = crypt.aes_ecb_decrypt(ciphertext, key)
+        assert plaintext == message
+    
     def test_hamming_distance(self):
         a = "this is a test"
         b = "wokka wokka!!!"

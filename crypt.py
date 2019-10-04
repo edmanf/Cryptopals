@@ -24,10 +24,13 @@ def detect_AES_ECB(ciphers, key_size):
             best_cipher = cipher
     return best_cipher
         
-                
-
-def aes_ecb(ciphertext, key):
+def aes_ecb_decrypt(ciphertext, key):
     cipher = AES.new(key, AES.MODE_ECB)
     plaintext = cipher.decrypt(ciphertext)
     return plaintext
+    
+def aes_ecb_encrypt(plaintext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    ciphertext = cipher.encrypt(plaintext)
+    return ciphertext
     
