@@ -1,4 +1,6 @@
 import utils
+import convert
+import crypt
 
 class TestSet2:
     def test_c9(self):
@@ -21,3 +23,23 @@ class TestSet2:
         expected = "HELLO WORLD\x01\x01\x01\x01\x01"
         actual = utils.PKCS7_pad(message, pad_length, pad_byte)
         assert actual.decode() == expected
+        
+    def test_c10(self):
+        """ Implement CBC mode. """
+        input_file = "res/10.txt"
+        expected_file = "res/10_expected.txt"
+        
+        f = open(expected_file)
+        expected = f.read()
+        f.close()
+        
+        f = open(input_file)
+        b64_text = f.read()
+        f.close()
+        
+        input = convert.b64_string_to_hex_bytes(b64_text)
+        key = bytearray("YELLOW SUBMARINE", "utf-8")
+        iv = bytes("\x00", "ascii") * len(key)
+        actual = crypt.aes_cbc_decrypt(input, key, iv)
+        assert actual.decode() == expected
+        
