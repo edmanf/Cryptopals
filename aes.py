@@ -4,6 +4,37 @@ import utils
 import xor
 
 from Crypto.Cipher import AES
+import Crypto.Random
+from Crypto.Random import random
+
+def ecb_cbc_detection_oracle():
+    """ Detects the block cipher mode of the ecb cbc encryption oracle and return the result. """
+    
+    # The difference between ECB and CBC is that ECB will have the same
+    # output for the same input. A sufficiently long input of the same
+    # byte will produce equal ciphertext blocks in ECB mode.
+    plaintext = bytearray("A", "utf-8") * 256
+    result = ecb_cbc_encryption_oracle(plaintext)
+    
+
+def ecb_cbc_encryption_oracle(plaintext):
+    key = get_rand_aes_key()
+    prefix = Crypto.Random.get_random_bytes(random.randint(5,11))
+    suffix = Crypto.Random.get_random_bytes(random.randint(5,11))
+    pt = prefix + plaintext + suffix
+    
+    ct = None
+    if random.randint(0,1) is 0:
+        ct = aes_ecb_encrypt(pt, key)
+        return OracleResult(ct, OracleCipher.Mode.ECB)
+    else:
+        iv = Crypto.Random.get_random_bytes(16)
+        ct = aes_cbc_encrypt(pt, key, iv)
+        return OracleResult(ct, OracleCipher.Mode.CBC)
+
+def get_rand_aes_key(key_length = 16):
+    return Crypto.Random.get_random_bytes(key_length)
+    
 
 def aes_cbc_encrypt(plaintext, key, iv, pad_byte = b'\x04'):
     length = len(key)
@@ -55,4 +86,17 @@ def aes_ecb_encrypt(plaintext, key):
     cipher = AES.new(key, AES.MODE_ECB)
     ciphertext = cipher.encrypt(plaintext)
     return ciphertext
+    
+class OracleResult:
+        
+    ciphertext = None
+    mode = None
+    
+    def __init__(self, ciphertext = None, mode = None):
+        self.ciphertext = ciphertext
+        self.mode = mode
+        
+    class Mode:
+        ECB = 0
+        CBC = 1
     
