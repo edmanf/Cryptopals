@@ -85,7 +85,7 @@ class TestSet1:
         expected = f.read()
         f.close()
         
-        actual = crypt.aes_ecb(ciphertext, bytearray(key, "utf-8"))
+        actual = crypt.aes_ecb_decrypt(ciphertext, bytearray(key, "utf-8"))
         
         assert actual.decode() == expected # actual currently leaves 4 EOT bytes
         
