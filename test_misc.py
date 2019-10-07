@@ -1,5 +1,5 @@
 import utils
-import crypt
+import aes
 
 class TestMisc:
     def test_AES_ECB(self):
@@ -7,8 +7,8 @@ class TestMisc:
         message = utils.PKCS7_pad(message, 16)
         key = bytearray("YELLOW SUBMARINE", "utf-8")
         
-        ciphertext = crypt.aes_ecb_encrypt(message, key)
-        plaintext = crypt.aes_ecb_decrypt(ciphertext, key)
+        ciphertext = aes.aes_ecb_encrypt(message, key)
+        plaintext = aes.aes_ecb_decrypt(ciphertext, key)
         assert plaintext == message
     
     def test_hamming_distance(self):

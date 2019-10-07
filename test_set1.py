@@ -1,7 +1,7 @@
 import io
 
 import convert
-import crypt
+import aes
 import xor
 
 class TestSet1:
@@ -85,7 +85,7 @@ class TestSet1:
         expected = f.read()
         f.close()
         
-        actual = crypt.aes_ecb_decrypt(ciphertext, bytearray(key, "utf-8"))
+        actual = aes.aes_ecb_decrypt(ciphertext, bytearray(key, "utf-8"))
         
         assert actual.decode() == expected # actual currently leaves 4 EOT bytes
         
@@ -103,6 +103,6 @@ class TestSet1:
         expected = convert.hex_string_to_bytes(f.read())
         f.close()
         
-        actual = crypt.detect_AES_ECB(input, key_size)
+        actual = aes.detect_AES_ECB(input, key_size)
         
         assert actual == expected
