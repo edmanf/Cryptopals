@@ -1,5 +1,15 @@
 """ A collection of utility functions. """
 
+def count_repeats(a, block_length):
+    block_counts = {}
+    blocks = make_blocks(a, block_length)
+    for block in blocks:
+        if block in block_counts:
+            block_counts[block] += 1
+        else:
+            block_counts[block] = 0
+    return sum(block_counts.values())
+
 def PKCS7_pad(message, pad_length, pad_byte = b'\x04'):
     """ Pads a message by adding pad_byte to the end of a message
     until it is a multiple of pad_length and return the result."""

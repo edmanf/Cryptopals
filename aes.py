@@ -40,14 +40,7 @@ def detect_AES_ECB(ciphers, key_size):
     max_repeats = 0
     best_cipher = None
     for cipher in ciphers:
-        block_counts = {}
-        blocks = utils.make_blocks(cipher, key_size)
-        for block in blocks:
-            if block in block_counts:
-                block_counts[block] += 1
-            else:
-                block_counts[block] = 0
-        repeats = sum(block_counts.values())
+        repeats = utils.count_repeats(cipher, key_size)
         if repeats > max_repeats:
             max_repeats = repeats
             best_cipher = cipher
