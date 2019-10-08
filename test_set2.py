@@ -43,3 +43,23 @@ class TestSet2:
         actual = aes.aes_cbc_decrypt(input, key, iv)
         assert actual.decode() == expected
         
+        
+    def test_c11(self):
+        """ An ECB/CBC detection oracle. """
+        plaintext = bytearray("A", "utf-8") * 256
+        result = aes.ecb_cbc_encryption_oracle(plaintext, 
+            mode = aes.ECBCBCOracleCipher.Mode.ECB)
+        mode = aes.detect_ecb_cbc_encryption(result.ciphertext, 16)
+        assert mode == aes.ECBCBCOracleCipher.Mode.ECB
+        
+        result = aes.ecb_cbc_encryption_oracle(plaintext, 
+            mode = aes.ECBCBCOracleCipher.Mode.CBC)
+        mode = aes.detect_ecb_cbc_encryption(result.ciphertext, 16) 
+        assert mode == aes.ECBCBCOracleCipher.Mode.CBC
+        
+        
+            
+            
+    
+    
+    

@@ -13,27 +13,54 @@ def ecb_cbc_detection_oracle():
     # The difference between ECB and CBC is that ECB will have the same
     # output for the same input. A sufficiently long input of the same
     # byte will produce equal ciphertext blocks in ECB mode.
-    plaintext = bytearray("A", "utf-8") * 256
+    plaintext = bytearray("A", "utf-8") * 512
     result = ecb_cbc_encryption_oracle(plaintext)
+    mode = detect_ecb_cbc_encryption(result.ciphertext, 16)
+    return mode
+        
+def detect_ecb_cbc_encryption(ciphertext, key_length, repeat_threshold = 3):
+    """ Takes a given ciphertext and detect whether its been encrypted
+    in ecb or cbc mode.
+    
+    """
+    a = utils.count_repeats(ciphertext, key_length)
+    if utils.count_repeats(ciphertext, key_length) > 3:
+        return ECBCBCOracleCipher.Mode.ECB
+    else:
+        return ECBCBCOracleCipher.Mode.CBC
+    
     
 
-def ecb_cbc_encryption_oracle(plaintext):
+def ecb_cbc_encryption_oracle(plaintext, mode = None):
+    """ Encrypts plaintext with aes in either ecb or cbc mode
+    
+    If mode is not set, a random mode is chosen.
+    """
     key = get_rand_aes_key()
-    prefix = Crypto.Random.get_random_bytes(random.randint(5,11))
-    suffix = Crypto.Random.get_random_bytes(random.randint(5,11))
+    prefix = bytearray(
+        Crypto.Random.get_random_bytes(random.randint(5,11)))
+    suffix = bytearray(
+        Crypto.Random.get_random_bytes(random.randint(5,11)))
     pt = prefix + plaintext + suffix
     
     ct = None
-    if random.randint(0,1) is 0:
-        ct = aes_ecb_encrypt(pt, key)
-        return OracleResult(ct, OracleCipher.Mode.ECB)
+    
+    chosen_mode = None
+    if mode is None:
+        chosen_mode = random.randint(0,1)
     else:
-        iv = Crypto.Random.get_random_bytes(16)
+        chosen_mode = mode
+        
+    if chosen_mode is 0:
+        ct = aes_ecb_encrypt(utils.PKCS7_pad(pt, len(key)), key)
+        return ECBCBCOracleCipher(ct, ECBCBCOracleCipher.Mode.ECB)
+    else:
+        iv = bytearray(Crypto.Random.get_random_bytes(16))
         ct = aes_cbc_encrypt(pt, key, iv)
-        return OracleResult(ct, OracleCipher.Mode.CBC)
+        return ECBCBCOracleCipher(ct, ECBCBCOracleCipher.Mode.CBC)
 
 def get_rand_aes_key(key_length = 16):
-    return Crypto.Random.get_random_bytes(key_length)
+    return bytearray(Crypto.Random.get_random_bytes(key_length))
     
 
 def aes_cbc_encrypt(plaintext, key, iv, pad_byte = b'\x04'):
@@ -87,7 +114,7 @@ def aes_ecb_encrypt(plaintext, key):
     ciphertext = cipher.encrypt(plaintext)
     return ciphertext
     
-class OracleResult:
+class ECBCBCOracleCipher:
         
     ciphertext = None
     mode = None

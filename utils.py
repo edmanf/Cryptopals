@@ -4,10 +4,11 @@ def count_repeats(a, block_length):
     block_counts = {}
     blocks = make_blocks(a, block_length)
     for block in blocks:
-        if block in block_counts:
-            block_counts[block] += 1
+        b = bytes(block)
+        if b in block_counts:
+            block_counts[b] += 1
         else:
-            block_counts[block] = 0
+            block_counts[b] = 0
     return sum(block_counts.values())
 
 def PKCS7_pad(message, pad_length, pad_byte = b'\x04'):
