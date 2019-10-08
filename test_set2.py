@@ -19,9 +19,8 @@ class TestSet2:
         
         message = bytearray("HELLO WORLD", "utf-8")
         pad_length = 16
-        pad_byte = b'\x01'
-        expected = "HELLO WORLD\x01\x01\x01\x01\x01"
-        actual = utils.PKCS7_pad(message, pad_length, pad_byte)
+        expected = "HELLO WORLD\x05\x05\x05\x05\x05"
+        actual = utils.PKCS7_pad(message, pad_length)
         assert actual.decode() == expected
         
     def test_c10(self):

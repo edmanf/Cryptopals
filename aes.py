@@ -2,10 +2,44 @@
 
 import utils
 import xor
+import convert
 
 from Crypto.Cipher import AES
 import Crypto.Random
 from Crypto.Random import random
+
+def simple_ecb_decryption(ciphertext):
+    f = open("res/12_secret.txt")
+    key = convert.hex_string_to_bytes(f.read())
+    f.close()
+
+def detect_ecb_block_size(ciphertext, key):
+    """ Detects the block size of an ecb encrypted ciphertext """
+    base = simple_ecb_oracle(ciphertext, key)
+    block_size = 1
+    b = bytearray()
+    while(True):
+        b += bytearray("A", "utf-8")
+        ct = b + ciphertext
+        res = simple_ecb_oracle(b + ciphertext, key)
+        if res[len(b):] == base:
+            # if all bytes after the inserted one are the same as the base,
+            # then the extra bytes have created one block
+            return block_size
+            
+def simple_ecb_oracle(plaintext, key):
+    f = open("res/12.txt")
+    b64_text = f.read()
+    f.close()
+    unknown_string = convert.b64_string_to_bytes(b64_text)
+    
+    pt = unknown_string + plaintext
+    
+    ct = aes_ecb_encrypt(utils.PKCS7_pad(pt, len(key)), key)
+    return ct
+    
+    
+    
 
 def ecb_cbc_detection_oracle():
     """ Detects the block cipher mode of the ecb cbc encryption oracle and return the result. """

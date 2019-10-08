@@ -19,7 +19,9 @@ def PKCS7_pad(message, pad_length, pad_byte = b'\x04'):
     diff = len(message) % pad_length
     
     if diff > 0:
-        padded += pad_byte * (pad_length - diff)
+        num_pad_bytes = pad_length - diff
+        pad_byte = bytes(chr(num_pad_bytes), "ascii")
+        padded += pad_byte * num_pad_bytes
     return padded
 
 def get_hamming_distance(a, b):
