@@ -37,7 +37,7 @@ class TestSet2:
         b64_text = f.read()
         f.close()
         
-        input = convert.b64_string_to_hex_bytes(b64_text)
+        input = convert.b64_string_to_bytes(b64_text)
         key = bytearray("YELLOW SUBMARINE", "utf-8")
         iv = bytes("\x00", "ascii") * len(key)
         actual = aes.aes_cbc_decrypt(input, key, iv)

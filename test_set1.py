@@ -65,7 +65,7 @@ class TestSet1:
         b64_text = f.read()
         f.close()
 
-        input = convert.b64_string_to_hex_bytes(b64_text)
+        input = convert.b64_string_to_bytes(b64_text)
         actual = xor.decrypt_repeating_key_XOR(input)
         
         assert(actual.decode() == expected)
@@ -79,7 +79,7 @@ class TestSet1:
         b64_text = f.read()
         f.close()
         
-        ciphertext = convert.b64_string_to_hex_bytes(b64_text)
+        ciphertext = convert.b64_string_to_bytes(b64_text)
         
         f = open(expected_file)
         expected = f.read()

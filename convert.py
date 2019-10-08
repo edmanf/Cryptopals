@@ -29,5 +29,5 @@ def hex_string_to_b64(hex_str):
     
     return hex_to_b64(hex_string_to_bytes(hex_str))
     
-def b64_string_to_hex_bytes(b64_str):
+def b64_string_to_bytes(b64_str):
     return hex_string_to_bytes(base64.b64decode(b64_str).hex())
