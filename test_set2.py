@@ -69,3 +69,11 @@ class TestMisc:
         
         actual = aes.detect_ecb_oracle_block_size(key)
         assert actual == key_len
+        
+    def test_ecb_oracle_encryption_mode(self):
+        key = aes.get_rand_aes_key(16)
+        pt = bytearray("A", "utf-8") * 256
+        expected = aes.ECBCBCOracleCipher.Mode.ECB
+        
+        actual = aes.detect_aes_encryption_mode(aes.simple_ecb_oracle(pt, key), len(key))
+        assert actual == expected
