@@ -13,16 +13,16 @@ def simple_ecb_decryption(ciphertext):
     key = convert.hex_string_to_bytes(f.read())
     f.close()
 
-def detect_ecb_block_size(ciphertext, key):
-    """ Detects the block size of an ecb encrypted ciphertext. """
-    base = simple_ecb_oracle(ciphertext, key)
-    block_size = 1
-    b = bytearray()
+def detect_ecb_oracle_block_size(key):
+    """ Detects the block size of the simple_ecb_oracle. """
+    block_size = 0
+    pt = bytearray()
+    base = simple_ecb_oracle(pt, key)
     while(True):
-        b += bytearray("A", "utf-8")
-        ct = b + ciphertext
-        res = simple_ecb_oracle(b + ciphertext, key)
-        if res[len(b):] == base:
+        pt += bytearray("A", "utf-8")
+        block_size += 1
+        ct = simple_ecb_oracle(pt, key)
+        if ct[len(pt):] == base:
             # if all bytes after the inserted one are the same as the base,
             # then the extra bytes have created one block
             return block_size

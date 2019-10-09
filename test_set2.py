@@ -56,9 +56,16 @@ class TestSet2:
         mode = aes.detect_aes_encryption_mode(result.ciphertext, 16) 
         assert mode == aes.ECBCBCOracleCipher.Mode.CBC
         
-
-            
-            
-    
-    
-    
+class TestMisc:
+    def test_detect_oracle_block_size(self):
+        key_len = 16
+        key = aes.get_rand_aes_key(key_len)
+        
+        actual = aes.detect_ecb_oracle_block_size(key)
+        assert actual == key_len
+        
+        key_len = 32
+        key = aes.get_rand_aes_key(key_len)
+        
+        actual = aes.detect_ecb_oracle_block_size(key)
+        assert actual == key_len
