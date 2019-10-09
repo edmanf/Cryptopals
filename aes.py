@@ -10,10 +10,29 @@ from Crypto.Cipher import AES
 import Crypto.Random
 from Crypto.Random import random
 
-def simple_ecb_decryption(ciphertext):
-    f = open("res/12_secret.txt")
-    key = convert.hex_string_to_bytes(f.read())
-    f.close()
+unknown_string_c12 = get_unknown_string_c12()
+key_c12 = get_key_c12()
+
+
+def simple_ecb_decryption():
+    block_size = detect_ecb_oracle_block_size(key_c12)
+    ct = simple_ecb_oracle(bytearray(), key_c12)
+    
+    pt = bytearray("A", "utf-8") * len(ct)
+    pt_blocks = utils.make_blocks(pt, block_size)
+    
+    pt_dict = {}
+    
+    # build last byte dictionary
+    for i in range(block_size):
+        input = bytearray("A", "utf-8") * i
+        ct = simple_ecb_oracle(input, key_c12)
+        pt_dict[i] = utils.make_blocks(ct, block_size)
+        
+    # for each block
+    # go through each last byte possible and save in pt
+    # go through next block
+        
     
 
 def detect_ecb_oracle_block_size(key):
@@ -33,14 +52,9 @@ def detect_ecb_oracle_block_size(key):
 def simple_ecb_oracle(plaintext, key):
     """ Appends plaintext with a hidden message and encrypts it under
     aes in ecb mode with the given key. """
-    f = open("res/12.txt")
-    b64_text = f.read()
-    f.close()
-    unknown_string = convert.b64_string_to_bytes(b64_text)
     
-    pt = plaintext + unknown_string
-    
-    ct = aes_ecb_encrypt(utils.PKCS7_pad(pt, len(key)), key)
+    pt = utils.PKCS7_pad(plaintext + unknown_string_c12, len(key))
+    ct = aes_ecb_encrypt(pt, key)
     return ct
     
     
@@ -166,3 +180,14 @@ class Mode(Enum):
     ECB = 0
     CBC = 1
     
+    
+def get_unknown_string_c12():
+    f = open("res/12.txt")
+    b64_text = f.read()
+    f.close()
+    unknown_string_c12 = convert.b64_string_to_bytes(b64_text)
+    
+def get_key_c12():
+    f = open("res/12_secret.txt")
+    key_c12 = convert.hex_string_to_bytes(f.read())
+    f.close()
