@@ -28,14 +28,14 @@ def detect_ecb_block_size(ciphertext, key):
             return block_size
             
 def simple_ecb_oracle(plaintext, key):
-    """ Prepends plaintext with a hidden message and encrypts it under
+    """ Appends plaintext with a hidden message and encrypts it under
     aes in ecb mode with the given key. """
     f = open("res/12.txt")
     b64_text = f.read()
     f.close()
     unknown_string = convert.b64_string_to_bytes(b64_text)
     
-    pt = unknown_string + plaintext
+    pt = plaintext + unknown_string
     
     ct = aes_ecb_encrypt(utils.PKCS7_pad(pt, len(key)), key)
     return ct
