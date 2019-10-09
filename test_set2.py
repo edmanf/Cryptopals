@@ -48,15 +48,15 @@ class TestSet2:
         plaintext = bytearray("A", "utf-8") * 256
         result = aes.ecb_cbc_encryption_oracle(plaintext, 
             mode = aes.ECBCBCOracleCipher.Mode.ECB)
-        mode = aes.detect_ecb_cbc_encryption(result.ciphertext, 16)
+        mode = aes.detect_aes_encryption_mode(result.ciphertext, 16)
         assert mode == aes.ECBCBCOracleCipher.Mode.ECB
         
         result = aes.ecb_cbc_encryption_oracle(plaintext, 
             mode = aes.ECBCBCOracleCipher.Mode.CBC)
-        mode = aes.detect_ecb_cbc_encryption(result.ciphertext, 16) 
+        mode = aes.detect_aes_encryption_mode(result.ciphertext, 16) 
         assert mode == aes.ECBCBCOracleCipher.Mode.CBC
         
-        
+
             
             
     

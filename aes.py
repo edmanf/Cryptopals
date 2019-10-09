@@ -14,7 +14,7 @@ def simple_ecb_decryption(ciphertext):
     f.close()
 
 def detect_ecb_block_size(ciphertext, key):
-    """ Detects the block size of an ecb encrypted ciphertext """
+    """ Detects the block size of an ecb encrypted ciphertext. """
     base = simple_ecb_oracle(ciphertext, key)
     block_size = 1
     b = bytearray()
@@ -28,6 +28,8 @@ def detect_ecb_block_size(ciphertext, key):
             return block_size
             
 def simple_ecb_oracle(plaintext, key):
+    """ Prepends plaintext with a hidden message and encrypts it under
+    aes in ecb mode with the given key. """
     f = open("res/12.txt")
     b64_text = f.read()
     f.close()
@@ -49,10 +51,10 @@ def ecb_cbc_detection_oracle():
     # byte will produce equal ciphertext blocks in ECB mode.
     plaintext = bytearray("A", "utf-8") * 512
     result = ecb_cbc_encryption_oracle(plaintext)
-    mode = detect_ecb_cbc_encryption(result.ciphertext, 16)
+    mode = detect_aes_encryption_mode(result.ciphertext, 16)
     return mode
         
-def detect_ecb_cbc_encryption(ciphertext, key_length, repeat_threshold = 3):
+def detect_aes_encryption_mode(ciphertext, key_length, repeat_threshold = 3):
     """ Takes a given ciphertext and detect whether its been encrypted
     in ecb or cbc mode.
     
