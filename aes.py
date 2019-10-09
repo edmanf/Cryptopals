@@ -1,5 +1,7 @@
 """ Methods for encryption and decryption."""
 
+from enum import Enum
+
 import utils
 import xor
 import convert
@@ -12,6 +14,7 @@ def simple_ecb_decryption(ciphertext):
     f = open("res/12_secret.txt")
     key = convert.hex_string_to_bytes(f.read())
     f.close()
+    
 
 def detect_ecb_oracle_block_size(key):
     """ Detects the block size of the simple_ecb_oracle. """
@@ -61,9 +64,9 @@ def detect_aes_encryption_mode(ciphertext, key_length, repeat_threshold = 3):
     """
     a = utils.count_repeats(ciphertext, key_length)
     if utils.count_repeats(ciphertext, key_length) > 3:
-        return ECBCBCOracleCipher.Mode.ECB
+        return Mode.ECB
     else:
-        return ECBCBCOracleCipher.Mode.CBC
+        return Mode.CBC
     
     
 
@@ -87,13 +90,13 @@ def ecb_cbc_encryption_oracle(plaintext, mode = None):
     else:
         chosen_mode = mode
         
-    if chosen_mode is 0:
+    if chosen_mode is Mode.ECB:
         ct = aes_ecb_encrypt(utils.PKCS7_pad(pt, len(key)), key)
-        return ECBCBCOracleCipher(ct, ECBCBCOracleCipher.Mode.ECB)
+        return ECBCBCOracleCipher(ct, Mode.ECB)
     else:
         iv = bytearray(Crypto.Random.get_random_bytes(16))
         ct = aes_cbc_encrypt(pt, key, iv)
-        return ECBCBCOracleCipher(ct, ECBCBCOracleCipher.Mode.CBC)
+        return ECBCBCOracleCipher(ct, Mode.CBC)
 
 def get_rand_aes_key(key_length = 16):
     return bytearray(Crypto.Random.get_random_bytes(key_length))
@@ -159,7 +162,7 @@ class ECBCBCOracleCipher:
         self.ciphertext = ciphertext
         self.mode = mode
         
-    class Mode:
-        ECB = 0
-        CBC = 1
+class Mode(Enum):
+    ECB = 0
+    CBC = 1
     
