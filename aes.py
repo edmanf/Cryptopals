@@ -54,7 +54,7 @@ def simple_ecb_oracle(plaintext, key):
     """ Appends plaintext with a hidden message and encrypts it under
     aes in ecb mode with the given key. """
     unknown_string = get_unknown_string_c12()
-    pt = utils.PKCS7_pad(plaintext + unknown_string, len(key))
+    pt = utils.PKCS7_pad(bytearray(plaintext) + unknown_string, len(key))
     ct = aes_ecb_encrypt(pt, key)
     return ct
     
