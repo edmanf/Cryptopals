@@ -17,22 +17,45 @@ key_c12 = None
 def simple_ecb_decryption():
     key = get_key_c12()
     block_size = detect_ecb_oracle_block_size(key)
-    ct = simple_ecb_oracle(bytearray(), key)
     
     pt = bytearray("A", "utf-8") * len(ct)
     pt_blocks = utils.make_blocks(pt, block_size)
+    num_blocks = len(pt_blocks)
     
-    pt_dict = {}
+    ct_dict = {}
     
     # build last byte dictionary
     for i in range(block_size):
-        input = bytearray("A", "utf-8") * i
+        input = bytes("A", "utf-8") * i
         ct = simple_ecb_oracle(input, key)
-        pt_dict[i] = utils.make_blocks(ct, block_size)
+        ct_dict[i] = utils.make_blocks(ct, block_size)
         
     # for each block
     # go through each last byte possible and save in pt
     # go through next block
+    
+    for i in range(num_blocks):
+        for j in range(block_size):
+            num_input_bytes = (block_size - (j + 1))
+            input = pt[i * block_size : i * block_size + num__input_bytes]
+            
+            block_index = i // block_size
+            block = ct_dict[num_input_bytes][block_index]
+            
+            ct = simple_ecb_oracle(input, key)
+            ct_block = ct[block_index]
+            
+            # find the byte that makes a matching block
+            for k in range(256):
+                b = chr(k)
+                test_input = input + b
+                
+                test_ct = simple_ecb_oracle(test_input, key)
+                test_block = test_ct[block_index]
+                
+                if ct_block == test_block:
+                   ]
+        
         
     
 
