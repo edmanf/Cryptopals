@@ -10,13 +10,14 @@ from Crypto.Cipher import AES
 import Crypto.Random
 from Crypto.Random import random
 
-unknown_string_c12 = get_unknown_string_c12()
-key_c12 = get_key_c12()
+unknown_string_c12 = None
+key_c12 = None
 
 
 def simple_ecb_decryption():
-    block_size = detect_ecb_oracle_block_size(key_c12)
-    ct = simple_ecb_oracle(bytearray(), key_c12)
+    key = get_key_c12()
+    block_size = detect_ecb_oracle_block_size(key)
+    ct = simple_ecb_oracle(bytearray(), key)
     
     pt = bytearray("A", "utf-8") * len(ct)
     pt_blocks = utils.make_blocks(pt, block_size)
@@ -26,7 +27,7 @@ def simple_ecb_decryption():
     # build last byte dictionary
     for i in range(block_size):
         input = bytearray("A", "utf-8") * i
-        ct = simple_ecb_oracle(input, key_c12)
+        ct = simple_ecb_oracle(input, key)
         pt_dict[i] = utils.make_blocks(ct, block_size)
         
     # for each block
@@ -52,8 +53,8 @@ def detect_ecb_oracle_block_size(key):
 def simple_ecb_oracle(plaintext, key):
     """ Appends plaintext with a hidden message and encrypts it under
     aes in ecb mode with the given key. """
-    
-    pt = utils.PKCS7_pad(plaintext + unknown_string_c12, len(key))
+    unknown_string = get_unknown_string_c12()
+    pt = utils.PKCS7_pad(plaintext + unknown_string, len(key))
     ct = aes_ecb_encrypt(pt, key)
     return ct
     
@@ -182,12 +183,21 @@ class Mode(Enum):
     
     
 def get_unknown_string_c12():
-    f = open("res/12.txt")
-    b64_text = f.read()
-    f.close()
-    unknown_string_c12 = convert.b64_string_to_bytes(b64_text)
+    """ Returns the unknown string that is appended to the plaintext
+    in the ecb oracle. """
+    global unknown_string_c12
+    if unknown_string_c12 is None:
+        f = open("res/12.txt")
+        b64_text = f.read()
+        f.close()
+        unknown_string_c12 = convert.b64_string_to_bytes(b64_text)
+    return unknown_string_c12
     
 def get_key_c12():
-    f = open("res/12_secret.txt")
-    key_c12 = convert.hex_string_to_bytes(f.read())
-    f.close()
+    """ Returns the random but consistent key used for the ecb oracle. """
+    global key_c12
+    if key_c12 is None:
+        f = open("res/12_secret.txt")
+        key_c12 = convert.hex_string_to_bytes(f.read())
+        f.close()
+    return key_c12
