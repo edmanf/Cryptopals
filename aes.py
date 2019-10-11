@@ -14,7 +14,7 @@ unknown_string_c12 = None
 key_c12 = None
 
 
-def simple_ecb_decryption():
+def simple_ecb_oracle_decryption():
     key = get_key_c12()
     block_size = detect_ecb_oracle_block_size(key)
     
