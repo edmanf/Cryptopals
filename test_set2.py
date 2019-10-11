@@ -56,6 +56,11 @@ class TestSet2:
         mode = aes.detect_aes_encryption_mode(result.ciphertext, 16) 
         assert mode == aes.Mode.CBC
         
+    def test_c12(self):
+        """ Byte-at-a-time ECB decryption (Simple) """
+        print(aes.simple_ecb_decryption())
+        
+        
 class TestMisc:
     def test_detect_oracle_block_size(self):
         key_len = 16

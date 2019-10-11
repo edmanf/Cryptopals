@@ -18,43 +18,51 @@ def simple_ecb_decryption():
     key = get_key_c12()
     block_size = detect_ecb_oracle_block_size(key)
     
-    pt = bytearray("A", "utf-8") * len(ct)
-    pt_blocks = utils.make_blocks(pt, block_size)
-    num_blocks = len(pt_blocks)
-    
     ct_dict = {}
     
     # build last byte dictionary
     for i in range(block_size):
         input = bytes("A", "utf-8") * i
         ct = simple_ecb_oracle(input, key)
-        ct_dict[i] = utils.make_blocks(ct, block_size)
+        ct_dict[input] = utils.make_blocks(ct, block_size)
+        print(f"building {input}")
+        
+    
+    num_blocks = len(ct_dict[bytes()])
+    pt = bytearray("A", "utf-8") * len(simple_ecb_oracle(bytearray(), key))
         
     # for each block
     # go through each last byte possible and save in pt
     # go through next block
-    
     for i in range(num_blocks):
         for j in range(block_size):
             num_input_bytes = (block_size - (j + 1))
-            input = pt[i * block_size : i * block_size + num__input_bytes]
             
-            block_index = i // block_size
-            block = ct_dict[num_input_bytes][block_index]
+            input = bytearray("A", "utf-8") * num_input_bytes
             
-            ct = simple_ecb_oracle(input, key)
-            ct_block = ct[block_index]
+            ct_block = ct_dict[bytes(input)][i]
             
             # find the byte that makes a matching block
             for k in range(256):
-                b = chr(k)
-                test_input = input + b
+                test_byte = bytes([k])
+                
+                test_input = None
+                if i is 0:
+                    # input + solved bytes + test byte for first block
+                    test_input = input + pt[0:block_size - num_input_bytes - 1] + test_byte
+                else:
+                    # solved bytes + test byte for all other blocks
+                    end = i * block_size + j - 1 # -1 for test byte
+                    start = end - block_size + 1 # +1 for test byte
+                    test_input = pt[start:end] + test_byte
                 
                 test_ct = simple_ecb_oracle(test_input, key)
-                test_block = test_ct[block_index]
+                test_block = test_ct[i * block_size:(i + 1) * block_size]
                 
                 if ct_block == test_block:
-                   ]
+                    pt[i * block_size + j] = k # k = test_byte
+                    break
+    return pt
         
         
     
