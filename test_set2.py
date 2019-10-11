@@ -58,7 +58,7 @@ class TestSet2:
         
     def test_c12(self):
         """ Byte-at-a-time ECB decryption (Simple) """
-        print(aes.simple_ecb_decryption())
+        return aes.simple_ecb_decryption().decode()
         
         
 class TestMisc:
