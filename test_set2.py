@@ -1,6 +1,7 @@
 import utils
 import convert
 import aes
+from KVParser import KVParser
 
 class TestSet2:
     def test_c9(self):
@@ -84,3 +85,23 @@ class TestMisc:
         
         actual = aes.detect_aes_encryption_mode(aes.simple_ecb_oracle(pt, key), len(key))
         assert actual == expected
+        
+    def test_kvparser(self):
+        args = "foo=HELLO&bar=WORLD"
+        assert KVParser(args).to_string() == args
+        
+        args = "foo=HELLO"
+        assert KVParser(args).to_string() == args
+        
+    def test_profile_for(self):
+        input = "foo@bar.com"
+        expected = "email=foo@bar.com&uid=10&role=user"
+        assert KVParser.profile_for(input).to_string() == expected
+        
+    def test_email_sanitizer(self):
+        input = "foo@bar.com&role=admin"
+        expected_sanitize = "foo@bar.comroleadmin"
+        assert KVParser.sanitize_email(input) == expected_sanitize
+    
+        expected = "email=foo@bar.comroleadmin&uid=10&role=user"
+        assert KVParser.profile_for(input).to_string() == expected
