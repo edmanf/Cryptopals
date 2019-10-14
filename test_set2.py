@@ -105,3 +105,21 @@ class TestMisc:
     
         expected = "email=foo@bar.comroleadmin&uid=10&role=user"
         assert KVParser.profile_for(input).to_string() == expected
+        
+    def test_KVParser_enc_dec(self):
+        input = "foo@bar.com"
+        expected = "email=foo@bar.com&uid=10&role=user"
+        key = bytearray("YELLOW SUBMARINE", "utf-8")
+        
+        ct = KVParser.profile_for(input).encrypt(key)
+        parser = KVParser.decrypt_profile(ct, key)
+        assert parser.to_string() == expected
+        
+        input = "foo@bar.com&role=admin"
+        expected = "email=foo@bar.comroleadmin&uid=10&role=user"
+        ct = KVParser.profile_for(input).encrypt(key)
+        parser = KVParser.decrypt_profile(ct, key)
+        assert parser.to_string() == expected
+        
+        
+        

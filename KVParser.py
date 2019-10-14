@@ -1,3 +1,6 @@
+import utils
+import aes
+
 class KVParser:
     def __init__(self, args):
         self.args = {}
@@ -20,6 +23,9 @@ class KVParser:
         """ Returns an aes encrypyted string of this KVParser.
         Decrypting with the given key and passing the decrypted string
         to the KVParser constructor will rebuild the parser. """
+        padded = utils.PKCS7_pad(bytearray(self.to_string(), "utf-8"), len(aes_key))
+        return aes.aes_ecb_encrypt(padded, aes_key)
+        
         
     @classmethod
     def decrypt_profile(cls, ciphertext, aes_key):
@@ -27,6 +33,15 @@ class KVParser:
         built with the resulting plaintext. """
         
         # Need to remove potential padding from plaintext
+        plaintext = aes.aes_ecb_decrypt(ciphertext, aes_key)
+        
+        block_size = len(aes_key)
+        # remove padding
+        for i in range(block_size):
+            index = len(plaintext) - 1 - i
+            if ((plaintext[index] < ord("Z") and plaintext[index] > ord("A")) or 
+                (plaintext[index] < ord("z") and plaintext[index] > ord("a"))):
+                return KVParser(plaintext[:index + 1].decode())
         return None
         
         
