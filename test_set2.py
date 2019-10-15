@@ -2,6 +2,7 @@ import utils
 import convert
 import aes
 from KVParser import KVParser
+import profile_for_attack as pfa
 
 class TestSet2:
     def test_c9(self):
@@ -62,6 +63,9 @@ class TestSet2:
         expected = aes.get_unknown_string_c12().decode()
         
         assert aes.simple_ecb_oracle_decryption().decode() == expected
+        
+    def test_c13(self):
+        assert pfa.profile_attack()["role"] == admin
         
         
 class TestMisc:

@@ -47,6 +47,8 @@ class KVParser:
         
     @classmethod
     def profile_for(cls, email_address):
+        """ Creates a parser for the user profile with the given
+        email_address. email_address must be a string. """
         sanitized = KVParser.sanitize_email(email_address)
         uid = 10
         role = "user"
@@ -66,3 +68,5 @@ class KVParser:
                 
         result = "".join(chunks)
         return result
+        
+    
