@@ -12,7 +12,7 @@ def profile_attack():
     num_pre_bytes = 0
     block_size = 0
     for i in range(1, 512):
-        length = len(KVParser.profile_for("A" * i).to_string())
+        length = len(KVParser.profile_for("A" * i).encrypt(key))
         if length > min_length:
             num_pre_bytes = length
             block_size = length - min_length

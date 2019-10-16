@@ -91,27 +91,29 @@ class TestMisc:
         assert actual == expected
         
     def test_kvparser(self):
-        args = "foo=HELLO&bar=WORLD"
-        assert KVParser(args).to_string() == args
+        args = bytearray("foo=HELLO&bar=WORLD", "utf-8")
+        assert KVParser(args).get_repr() == args
         
-        args = "foo=HELLO"
-        assert KVParser(args).to_string() == args
+        args = bytearray("foo=HELLO", "utf-8")
+        assert KVParser(args).get_repr() == args
         
     def test_profile_for(self):
-        input = "foo@bar.com"
+        input = bytearray("foo@bar.com", "utf-8")
         expected = "email=foo@bar.com&uid=10&role=user"
         assert KVParser.profile_for(input).to_string() == expected
         
     def test_email_sanitizer(self):
-        input = "foo@bar.com&role=admin"
-        expected_sanitize = "foo@bar.comroleadmin"
+        input = bytearray("foo@bar.com&role=admin", "utf-8")
+        expected_sanitize = bytearray("foo@bar.comroleadmin", "utf-8")
         assert KVParser.sanitize_email(input) == expected_sanitize
     
-        expected = "email=foo@bar.comroleadmin&uid=10&role=user"
-        assert KVParser.profile_for(input).to_string() == expected
+        expected = bytearray(
+            "email=foo@bar.comroleadmin&uid=10&role=user", 
+            "utf-8")
+        assert KVParser.profile_for(input).to_string() == expected.decode()
         
     def test_KVParser_enc_dec(self):
-        input = "foo@bar.com"
+        input = bytearray("foo@bar.com", "utf-8")
         expected = "email=foo@bar.com&uid=10&role=user"
         key = bytearray("YELLOW SUBMARINE", "utf-8")
         
@@ -119,7 +121,7 @@ class TestMisc:
         parser = KVParser.decrypt_profile(ct, key)
         assert parser.to_string() == expected
         
-        input = "foo@bar.com&role=admin"
+        input = bytearray("foo@bar.com&role=admin", "utf-8")
         expected = "email=foo@bar.comroleadmin&uid=10&role=user"
         ct = KVParser.profile_for(input).encrypt(key)
         parser = KVParser.decrypt_profile(ct, key)

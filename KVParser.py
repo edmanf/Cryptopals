@@ -2,28 +2,36 @@ import utils
 import aes
 
 class KVParser:
-    def __init__(self, args):
+    def __init__(self, args, encoding = "utf-8"):
         self.args = {}
+        self.encoding = encoding
         
-        for arg in args.split("&"):
-            key, value = arg.split("=")
-            self.args[key] = value
+        for arg in args.split(bytes("&", encoding)):
+            key, value = arg.split(bytes("=", encoding))
+            self.args[bytes(key)] = value
     
     def get(self, key):
         return self.args[key]
         
-    def to_string(self):
-        chunks = []
+    def get_repr(self):
+        result = bytearray()
         for key in self.args:
-            chunks.append(f"{key}={self.args[key]}&")
-        result = "".join(chunks)
+            result += key + \
+                bytes("=", self.encoding) + \
+                self.args[bytes(key)] + \
+                bytes("&", self.encoding)
         return result[:-1] # removes fencepost &
+        
+    def to_string(self):
+        return self.get_repr().decode()
         
     def encrypt(self, aes_key):
         """ Returns an aes encrypyted string of this KVParser.
         Decrypting with the given key and passing the decrypted string
         to the KVParser constructor will rebuild the parser. """
-        padded = utils.PKCS7_pad(bytearray(self.to_string(), "utf-8"), len(aes_key))
+        padded = utils.PKCS7_pad(
+            bytearray(self.to_string(), self.encoding), 
+            len(aes_key))
         return aes.aes_ecb_encrypt(padded, aes_key)
         
         
@@ -41,32 +49,38 @@ class KVParser:
             index = len(plaintext) - 1 - i
             if ((plaintext[index] < ord("Z") and plaintext[index] > ord("A")) or 
                 (plaintext[index] < ord("z") and plaintext[index] > ord("a"))):
-                return KVParser(plaintext[:index + 1].decode())
+                return KVParser(plaintext[:index + 1])
         return None
         
         
     @classmethod
-    def profile_for(cls, email_address):
+    def profile_for(cls, email_address, encoding = "utf-8"):
         """ Creates a parser for the user profile with the given
         email_address. email_address must be a string. """
         sanitized = KVParser.sanitize_email(email_address)
-        uid = 10
-        role = "user"
+        uid = bytes("10", encoding)
+        role = (bytes("user", encoding))
         
-        return KVParser(f"email={sanitized}&uid={uid}&role={role}")
+        input = bytearray("email=", encoding) + \
+            sanitized + \
+            bytes("&uid=", encoding) + \
+            uid + \
+            bytes("&role=", encoding) + \
+            role
+        
+        return KVParser(input)
         
         
         
     @classmethod    
-    def sanitize_email(cls, email_adress):
+    def sanitize_email(cls, email_adress, encoding = "utf-8"):
         """ Returns the email address with "=" and "&" characters
         removed. """
-        chunks = []
+        result = bytearray()
         for c in email_adress:
-            if c is not "&" and c is not "=":
-                chunks.append(c)
-                
-        result = "".join(chunks)
+            if c is not ord("=") and c is not ord("&"):
+                result.append(c)
+
         return result
         
     
