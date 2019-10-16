@@ -65,7 +65,8 @@ class TestSet2:
         assert aes.simple_ecb_oracle_decryption().decode() == expected
         
     def test_c13(self):
-        assert pfa.profile_attack()["role"] == admin
+        profile = pfa.profile_attack()
+        assert profile.get(bytes("role", "utf-8")) == bytes("admin", "utf-8")
         
         
 class TestMisc:
