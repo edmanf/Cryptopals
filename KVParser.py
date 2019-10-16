@@ -50,7 +50,7 @@ class KVParser:
             if ((plaintext[index] < ord("Z") and plaintext[index] > ord("A")) or 
                 (plaintext[index] < ord("z") and plaintext[index] > ord("a"))):
                 return KVParser(plaintext[:index + 1])
-        return None
+        return KVParser(plaintext)
         
         
     @classmethod
