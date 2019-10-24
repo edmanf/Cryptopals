@@ -13,6 +13,21 @@ from Crypto.Random import random
 unknown_string_c12 = None
 key_c12 = None
 
+def hard_ecd_oracle_decryption():
+    
+def hard_ecb_oracle(input):
+    rand_prefix_max = 64
+    rand_prefix_length = random.randint(0, rand_prefix_max)
+    rand_prefix = get_rand_aes_key(rand_prefix_length)
+    
+    # No target or key instructions given, so use the same as in c12
+    unknown_string = get_unknown_string_c12()
+    key = get_key_c12()
+    
+    pt = bytearray()
+    pt += rand_prefix + bytearray(input) + unknown_string
+    return aes_ecb_encrypt(pt, key)
+
 
 def simple_ecb_oracle_decryption():
     key = get_key_c12()
@@ -112,8 +127,6 @@ def simple_ecb_oracle(plaintext, key):
     return ct
     
     
-    
-
 def ecb_cbc_detection_oracle():
     """ Detects the block cipher mode of the ecb cbc encryption oracle and return the result. """
     
