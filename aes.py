@@ -14,7 +14,47 @@ unknown_string_c12 = None
 key_c12 = None
 
 def hard_ecd_oracle_decryption():
+    base = hard_ecb_oracle(bytearray())
+    base_len = len(base)
     
+    # find block length
+    block_len = base_len
+    num_bytes_to_next_block = 0  # bytes to oracle to make a new padded block
+    while(num_bytes_to_next_block <= base_len):
+        num_bytes_to_next_block += 1
+        input = bytearray("A", "utf-8") * num_bytes_to_next_block
+        ct = hard_ecb_oracle(input)
+        block_len = len(ct) - base_len
+    
+    # find first changing block
+    base_blocks = utils.make_blocks(base, block_len)
+    single_byte_input = utils.make_blocks(
+        hard_ecb_oracle(bytearray(b'\x01')), 
+        block_len)
+    diff_block_index = -1
+    
+
+    for i in range(len(base_blocks)):
+        if base_blocks[diff_block_index] != single_byte_input[diff_block_index]:
+            diff_block_index = i
+            break     
+    # find how many bytes it takes to make the block stop
+    # changing. This will mean rand_prefix has been padded (with 1 extra)
+    block = single_byte_input[diff_block_index]
+    num_prefix_pad_bytes = 0
+    for i in range(2, block_len):
+        input = bytearray("A", "utf-8") * i
+        ct = utils.make_blocks(hard_ecb_oracle(input), block_len)
+        if ct[diff_block_index] == block:
+            num_prefix_pad_bytes = i - 1 # the previous byte finished the pad
+            break
+        else:
+            block = ct[diff_block_index]
+    
+    
+    
+    
+
 def hard_ecb_oracle(input):
     rand_prefix_max = 64
     rand_prefix_length = random.randint(0, rand_prefix_max)
