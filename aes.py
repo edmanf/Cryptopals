@@ -19,27 +19,34 @@ def hard_ecd_oracle_decryption():
     
     # find block length
     block_len = base_len
-    num_bytes_to_next_block = 0  # bytes to oracle to make a new padded block
-    while(num_bytes_to_next_block <= base_len):
-        num_bytes_to_next_block += 1
-        input = bytearray("A", "utf-8") * num_bytes_to_next_block
+    num_bytes_to_next_block = 0
+    for i in range(base_len):
+        input = bytearray("A", "utf-8") * i
         ct = hard_ecb_oracle(input)
-        block_len = len(ct) - base_len
+        if len(ct) is not block_len:
+            block_len = len(ct) - base_len
+            num_bytes_to_next_block = i - 1
+            break
     
-    # find first changing block
-    base_blocks = utils.make_blocks(base, block_len)
-    single_byte_input = utils.make_blocks(
-        hard_ecb_oracle(bytearray(b'\x01')), 
-        block_len)
-    diff_block_index = -1
-    
-
-    for i in range(len(base_blocks)):
-        if base_blocks[diff_block_index] != single_byte_input[diff_block_index]:
-            diff_block_index = i
-            break     
+    # find first changing block index
+    # this is the first block that contains user input
+    diff_block_index = get_diff_block_index(base, block_len)
+            
     # find how many bytes it takes to make the block stop
     # changing. This will mean rand_prefix has been padded (with 1 extra)
+    num_prefix_pad_bytes = get_num_prefix_bytes(diff_block_index)
+            
+    pad_bytes = bytearray("A", "utf-8") * num_prefix_pad_bytes
+    
+    ct_dict = {}
+    
+    # build last byte dictionary
+    for i in range(block_size):
+        input = pad_bytes + bytes("A", "utf-8") * i
+        ct = hard_ecb_oracle(input)
+        ct_dict[input] = ct
+
+def get_num_prefix_bytes(diff_block_index):
     block = single_byte_input[diff_block_index]
     num_prefix_pad_bytes = 0
     for i in range(2, block_len):
@@ -47,12 +54,20 @@ def hard_ecd_oracle_decryption():
         ct = utils.make_blocks(hard_ecb_oracle(input), block_len)
         if ct[diff_block_index] == block:
             num_prefix_pad_bytes = i - 1 # the previous byte finished the pad
-            break
+            return num_prefix_pad_bytes
         else:
             block = ct[diff_block_index]
     
     
+def get_diff_block_index(base, block_len):
+    base_blocks = utils.make_blocks(base, block_len)
+    single_byte_input = utils.make_blocks(
+        hard_ecb_oracle(bytearray(b'\x01')), 
+        block_len)
     
+    for i in range(len(base_blocks)):
+        if base_blocks[i] != single_byte_input[i]:
+            return i
     
 
 def hard_ecb_oracle(input):
