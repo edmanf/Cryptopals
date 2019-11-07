@@ -14,6 +14,7 @@ unknown_string_c12 = None
 key_c12 = None
 
 def hard_ecd_oracle_decryption():
+    key = get_key_c12()
     base = hard_ecb_oracle(bytearray())
     base_len = len(base)
     
@@ -22,7 +23,7 @@ def hard_ecd_oracle_decryption():
     num_bytes_to_next_block = 0
     for i in range(base_len):
         input = bytearray("A", "utf-8") * i
-        ct = hard_ecb_oracle(input)
+        ct = hard_ecb_oracle(input, key)
         if len(ct) is not block_len:
             block_len = len(ct) - base_len
             num_bytes_to_next_block = i - 1
@@ -30,11 +31,11 @@ def hard_ecd_oracle_decryption():
     
     # find first changing block index
     # this is the first block that contains user input
-    diff_block_index = get_diff_block_index(base, block_len)
+    diff_block_index = get_diff_block_index(base, block_len, key)
             
     # find how many bytes it takes to make the block stop
     # changing. This will mean rand_prefix has been padded (with 1 extra)
-    num_prefix_pad_bytes = get_num_prefix_bytes(diff_block_index)
+    num_prefix_pad_bytes = get_num_prefix_bytes(diff_block_index, key)
             
     pad_bytes = bytearray("A", "utf-8") * num_prefix_pad_bytes
     
@@ -43,15 +44,15 @@ def hard_ecd_oracle_decryption():
     # build last byte dictionary
     for i in range(block_size):
         input = pad_bytes + bytes("A", "utf-8") * i
-        ct = hard_ecb_oracle(input)
+        ct = hard_ecb_oracle(input, key)
         ct_dict[input] = ct
 
-def get_num_prefix_bytes(diff_block_index):
+def get_num_prefix_bytes(diff_block_index, key):
     block = single_byte_input[diff_block_index]
     num_prefix_pad_bytes = 0
     for i in range(2, block_len):
         input = bytearray("A", "utf-8") * i
-        ct = utils.make_blocks(hard_ecb_oracle(input), block_len)
+        ct = utils.make_blocks(hard_ecb_oracle(input, key), block_len)
         if ct[diff_block_index] == block:
             num_prefix_pad_bytes = i - 1 # the previous byte finished the pad
             return num_prefix_pad_bytes
@@ -59,10 +60,10 @@ def get_num_prefix_bytes(diff_block_index):
             block = ct[diff_block_index]
     
     
-def get_diff_block_index(base, block_len):
+def get_diff_block_index(base, block_len, key):
     base_blocks = utils.make_blocks(base, block_len)
     single_byte_input = utils.make_blocks(
-        hard_ecb_oracle(bytearray(b'\x01')), 
+        hard_ecb_oracle(bytearray(b'\x01'), key), 
         block_len)
     
     for i in range(len(base_blocks)):
@@ -70,14 +71,13 @@ def get_diff_block_index(base, block_len):
             return i
     
 
-def hard_ecb_oracle(input):
+def hard_ecb_oracle(input, key):
     rand_prefix_max = 64
     rand_prefix_length = random.randint(0, rand_prefix_max)
     rand_prefix = get_rand_aes_key(rand_prefix_length)
     
     # No target or key instructions given, so use the same as in c12
     unknown_string = get_unknown_string_c12()
-    key = get_key_c12()
     
     pt = bytearray()
     pt += rand_prefix + bytearray(input) + unknown_string
