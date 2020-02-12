@@ -3,7 +3,6 @@ import convert
 import aes
 from KVParser import KVParser
 import profile_for_attack as pfa
-from utils import res_file_open
 
 
 class TestSet2:
@@ -32,11 +31,11 @@ class TestSet2:
         input_file = "10.txt"
         expected_file = "10_expected.txt"
 
-        f = res_file_open(expected_file)
+        f = utils.res_file_open(expected_file)
         expected = f.read()
         f.close()
 
-        f = res_file_open(input_file)
+        f = utils.res_file_open(input_file)
         b64_text = f.read()
         f.close()
 
