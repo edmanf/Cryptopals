@@ -1,3 +1,5 @@
+import Crypto.Random
+
 """ A collection of utility functions. """
 
 
@@ -136,3 +138,7 @@ def res_file_open(filename):
         return open(base + filename)
     except FileNotFoundError:
         return open("../" + base + filename)
+
+
+def get_random_bytes(length=16):
+    return bytearray(Crypto.Random.get_random_bytes(length))

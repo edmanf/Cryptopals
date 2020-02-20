@@ -235,7 +235,7 @@ def ecb_cbc_encryption_oracle(plaintext, mode=None):
 
 
 def get_rand_aes_key(key_length=16):
-    return bytearray(Crypto.Random.get_random_bytes(key_length))
+    return utils.get_random_bytes(key_length)
 
 
 def aes_cbc_encrypt(plaintext, key, iv, pad_byte=b'\x04'):
