@@ -4,7 +4,7 @@ import aes
 class TestMisc:
     def test_AES_ECB(self):
         message = bytearray("THE QUICK BROWN FOX", "utf-8")
-        message = utils.PKCS7_pad(message, 16)
+        message = utils.pkcs7_pad(message, 16)
         key = bytearray("YELLOW SUBMARINE", "utf-8")
         
         ciphertext = aes.aes_ecb_encrypt(message, key)

@@ -11,19 +11,19 @@ class TestSet2:
         message = bytearray("YELLOW SUBMARINE", "utf-8")
         pad_length = 20
         expected = "YELLOW SUBMARINE\x04\x04\x04\x04"
-        actual = utils.PKCS7_pad(message, pad_length)
+        actual = utils.pkcs7_pad(message, pad_length)
         assert actual.decode() == expected
 
         message = bytearray("YELLOW SUBMARINE", "utf-8")
         pad_length = 16
         expected = "YELLOW SUBMARINE"
-        actual = utils.PKCS7_pad(message, pad_length)
+        actual = utils.pkcs7_pad(message, pad_length)
         assert actual.decode() == expected
 
         message = bytearray("HELLO WORLD", "utf-8")
         pad_length = 16
         expected = "HELLO WORLD\x05\x05\x05\x05\x05"
-        actual = utils.PKCS7_pad(message, pad_length)
+        actual = utils.pkcs7_pad(message, pad_length)
         assert actual.decode() == expected
 
     def test_c10(self):

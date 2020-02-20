@@ -18,7 +18,7 @@ def profile_attack():
             break
     num_pre_bytes = block_size - len("email=")
     pre_bytes = bytearray("A", "utf-8") * num_pre_bytes  # aligns payload
-    payload = utils.PKCS7_pad(bytearray("admin", "utf-8"), block_size)
+    payload = utils.pkcs7_pad(bytearray("admin", "utf-8"), block_size)
     post_bytes = bytearray("B", "utf-8") * (len("user") - 1)  # room for &
 
     input = pre_bytes + payload + post_bytes

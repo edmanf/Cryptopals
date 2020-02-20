@@ -179,7 +179,7 @@ def simple_ecb_oracle(plaintext, key):
     aes in ecb mode with the given key. """
     unknown_string = get_unknown_string_c12()
 
-    pt = utils.PKCS7_pad(bytearray(plaintext) + unknown_string, len(key))
+    pt = utils.pkcs7_pad(bytearray(plaintext) + unknown_string, len(key))
     ct = aes_ecb_encrypt(pt, key)
     return ct
 
@@ -226,7 +226,7 @@ def ecb_cbc_encryption_oracle(plaintext, mode=None):
         chosen_mode = mode
 
     if chosen_mode is Mode.ECB:
-        ct = aes_ecb_encrypt(utils.PKCS7_pad(pt, len(key)), key)
+        ct = aes_ecb_encrypt(utils.pkcs7_pad(pt, len(key)), key)
         return ECBCBCOracleCipher(ct, Mode.ECB)
     else:
         iv = bytearray(Crypto.Random.get_random_bytes(16))
@@ -238,9 +238,9 @@ def get_rand_aes_key(key_length=16):
     return utils.get_random_bytes(key_length)
 
 
-def aes_cbc_encrypt(plaintext, key, iv, pad_byte=b'\x04'):
+def aes_cbc_encrypt(plaintext, key, iv):
     length = len(key)
-    padded = utils.PKCS7_pad(plaintext, length, pad_byte)
+    padded = utils.pkcs7_pad(plaintext, length)
     ciphertext = bytearray(len(padded))
     blocks = utils.make_blocks(padded, length)
     if len(blocks) == 0:

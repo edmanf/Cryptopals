@@ -3,9 +3,11 @@ import Crypto.Random
 """ A collection of utility functions. """
 
 
-def count_repeats(a, block_length):
+def count_repeats(msg, block_length):
+    """ Returns the count of repeated blocks of size block_length in the given message. """
+
     block_counts = {}
-    blocks = make_blocks(a, block_length)
+    blocks = make_blocks(msg, block_length)
     for block in blocks:
         b = bytes(block)
         if b in block_counts:
@@ -15,7 +17,7 @@ def count_repeats(a, block_length):
     return sum(block_counts.values())
 
 
-def PKCS7_pad(message, pad_length, pad_byte=b'\x04'):
+def pkcs7_pad(message, pad_length):
     """ Pads a message by adding pad_byte to the end of a message
     until it is a multiple of pad_length and return the result."""
 
@@ -122,10 +124,14 @@ def transpose(blocks):
     return transp_blocks
 
 
-def make_blocks(a, key_size):
+def make_blocks(msg, key_size):
+    """ Return a list of blocks created by breaking the message into groups of size key_size.
+
+    If the size of whole is not divisible by key_size, the leftover bytes in whole are not
+    included. """
     blocks = []
-    for i in range(len(a) // key_size):
-        block = a[i * key_size:i * key_size + key_size]
+    for i in range(len(msg) // key_size):
+        block = msg[i * key_size:i * key_size + key_size]
         blocks.append(block)
 
     return blocks
@@ -141,4 +147,5 @@ def res_file_open(filename):
 
 
 def get_random_bytes(length=16):
+    """ Return a bytearray with random bytes of given length. """
     return bytearray(Crypto.Random.get_random_bytes(length))

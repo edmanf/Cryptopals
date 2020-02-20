@@ -30,7 +30,7 @@ class KVParser:
         """ Returns an aes encrypyted string of this KVParser.
         Decrypting with the given key and passing the decrypted string
         to the KVParser constructor will rebuild the parser. """
-        padded = utils.PKCS7_pad(
+        padded = utils.pkcs7_pad(
             bytearray(self.to_string(), self.encoding),
             len(aes_key))
         return aes.aes_ecb_encrypt(padded, aes_key)
