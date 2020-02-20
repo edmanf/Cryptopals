@@ -47,8 +47,7 @@ class KVParser:
         # remove padding
         for i in range(block_size):
             index = len(plaintext) - 1 - i
-            if ((ord("Z") > plaintext[index] > ord("A")) or
-                    (ord("z") > plaintext[index] > ord("a"))):
+            if utils.is_byte_letter(plaintext[index]):
                 return KVParser(plaintext[:index + 1])
         return KVParser(plaintext)
 

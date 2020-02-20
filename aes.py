@@ -62,8 +62,21 @@ def get_num_prefix_bytes(diff_block_index, key):
             block = ct[diff_block_index]
 
 
-def get_diff_block_index(base, block_len, key):
-    base_blocks = utils.make_blocks(base, block_len)
+def get_diff_block_index(block_len, key):
+    """ Returns the index of the first block that is different when running hard_ecb_oracle() against
+    an empty bytearray, and one with a single byte of input.
+
+    i.e. return the first i such that hard_ecb_oracle(bytearray())[i] != hard_ecb_oracle(bytearray(\x01))[i]
+
+    Args:
+        block_len: length of the block
+        key: the key to run hard_ecb_oracle() under
+
+    Returns: The index of the first block where running hard_ecb_oracle against an empty bytearray and a size 1
+    bytearray is different.
+
+    """
+    base_blocks = utils.make_blocks(bytearray(), block_len)
     single_byte_input = utils.make_blocks(
         hard_ecb_oracle(bytearray(b'\x01'), key),
         block_len)
@@ -73,7 +86,18 @@ def get_diff_block_index(base, block_len, key):
             return i
 
 
-def hard_ecb_oracle(input, key):
+def hard_ecb_oracle(message, key):
+    """
+    Returns the result of encrypting a string of random bytes with the given message and a preset
+    unknown string, in that order.
+
+    Args:
+        message: the user chosen part of the plaintext
+        key: the AES encryption key
+
+    Returns: A ciphertext
+
+    """
     rand_prefix_max = 64
     rand_prefix_length = random.randint(0, rand_prefix_max)
     rand_prefix = get_rand_aes_key(rand_prefix_length)
@@ -82,11 +106,17 @@ def hard_ecb_oracle(input, key):
     unknown_string = get_unknown_string_c12()
 
     pt = bytearray()
-    pt += rand_prefix + bytearray(input) + unknown_string
+    pt += rand_prefix + bytearray(message) + unknown_string
     return aes_ecb_encrypt(pt, key)
 
 
 def simple_ecb_oracle_decryption():
+    """
+
+
+    Returns:
+
+    """
     key = get_key_c12()
     block_size = detect_ecb_oracle_block_size(key)
 

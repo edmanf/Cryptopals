@@ -3,6 +3,18 @@ import Crypto.Random
 """ A collection of utility functions. """
 
 
+def is_byte_letter(b):
+    return is_byte_lowercase_letter(b) or is_byte_uppercase_letter(b)
+
+
+def is_byte_uppercase_letter(b):
+    return ord("Z") >= b >= ord("A")
+
+
+def is_byte_lowercase_letter(b):
+    return ord("z") >= b >= ord("a")
+
+
 def count_repeats(msg, block_length):
     """ Returns the count of repeated blocks of size block_length in the given message. """
 
