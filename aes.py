@@ -14,7 +14,7 @@ unknown_string_c12 = None
 key_c12 = None
 
 
-def hard_ecd_oracle_decryption():
+def hard_ecb_oracle_decryption():
     key = get_key_c12()
     base = hard_ecb_oracle(bytearray())
     base_len = len(base)
@@ -220,9 +220,6 @@ def ecb_cbc_encryption_oracle(plaintext, mode=None):
         Crypto.Random.get_random_bytes(random.randint(5, 11)))
     pt = prefix + plaintext + suffix
 
-    ct = None
-
-    chosen_mode = None
     if mode is None:
         chosen_mode = random.randint(0, 1)
     else:
