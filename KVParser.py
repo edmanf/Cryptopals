@@ -69,7 +69,7 @@ class KVParser:
         return KVParser(args)
 
     @classmethod
-    def sanitize_email(cls, email_address, encoding="utf-8"):
+    def sanitize_email(cls, email_address):
         """ Returns the email address with "=" and "&" characters
         removed. """
         result = bytearray()

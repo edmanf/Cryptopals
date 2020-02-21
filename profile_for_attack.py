@@ -21,10 +21,9 @@ def profile_attack():
     payload = utils.pkcs7_pad(bytearray("admin", "utf-8"), block_size)
     post_bytes = bytearray("B", "utf-8") * (len("user") - 1)  # room for &
 
-    input = pre_bytes + payload + post_bytes
+    pt = pre_bytes + payload + post_bytes
 
-    ct = bytearray(KVParser.profile_for(input).encrypt(key))
-    test = KVParser.decrypt_profile(ct, key)
+    ct = bytearray(KVParser.profile_for(pt).encrypt(key))
     ct_payload = ct[block_size:2 * block_size]
     result = ct[:-1 * block_size] + ct_payload
 
