@@ -273,7 +273,7 @@ def aes_cbc_encrypt(plaintext, key, iv):
     vector = iv
     for i in range(len(blocks)):
         block = blocks[i]
-        vector = aes_ecb_encrypt(xor.fixed_XOR(block, vector), key)
+        vector = aes_ecb_encrypt(xor.fixed_xor(block, vector), key)
         ciphertext[i * length:(i + 1) * length] = vector
     return ciphertext
 
@@ -286,7 +286,7 @@ def aes_cbc_decrypt(ciphertext, key, iv):
     vector = iv
     for i in range(len(blocks)):
         block = blocks[i]
-        pt = xor.fixed_XOR(aes_ecb_decrypt(block, key), vector)
+        pt = xor.fixed_xor(aes_ecb_decrypt(block, key), vector)
         plaintext[i * length:(i + 1) * length] = pt
         vector = block
     return plaintext

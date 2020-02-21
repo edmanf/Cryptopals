@@ -23,7 +23,7 @@ class TestSet1:
 
         a = convert.hex_string_to_bytes(input1)
         b = convert.hex_string_to_bytes(input2)
-        actual = xor.fixed_XOR(a, b).hex()
+        actual = xor.fixed_xor(a, b).hex()
 
         assert actual == expected
 
@@ -33,7 +33,7 @@ class TestSet1:
         expected = "Cooking MC's like a pound of bacon"  # From solving the challenge
 
         a = convert.hex_string_to_bytes(input1)
-        actual = xor.single_byte_XOR(a).message
+        actual = xor.single_byte_xor(a).message
         assert actual.decode() == expected
 
     def test_c4(self):
@@ -44,7 +44,7 @@ class TestSet1:
         f = utils.res_file_open(input1)
         lines = [convert.hex_string_to_bytes(x.strip('\n')) for x in list(f)]
         f.close()
-        actual = xor.detect_single_character_XOR(lines).message
+        actual = xor.detect_single_character_xor(lines).message
         assert actual.decode() == expected
 
     def test_c5(self):
@@ -57,7 +57,7 @@ class TestSet1:
         f = utils.res_file_open(input_file)
         plaintext = bytearray(f.read(), "utf-8")
         f.close()
-        actual = xor.repeating_key_XOR(plaintext, bytearray(key, "utf-8"))
+        actual = xor.repeating_key_xor(plaintext, bytearray(key, "utf-8"))
 
         assert actual == convert.hex_string_to_bytes(expected)
 
@@ -75,7 +75,7 @@ class TestSet1:
         f.close()
 
         input_text = convert.b64_string_to_bytes(b64_text)
-        actual = xor.decrypt_repeating_key_XOR(input_text)
+        actual = xor.decrypt_repeating_key_xor(input_text)
 
         assert (actual.decode() == expected)
 
