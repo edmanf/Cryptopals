@@ -59,13 +59,13 @@ def get_hamming_distance(a, b):
     return hd
 
 
-def get_chi_square_value(bytes):
+def get_chi_square_value(text):
     """ Computes the chi square value of the bytes compared to average
     English text and returns the value. Smaller values mean the bytes more
     closely resemble English.
     
     Keyword arguments:
-    bytes -- the bytearray you want to measure for resemblence to English
+    text -- the bytearray you want to measure for resemblance to English
     """
 
     # Values if ignoring non-alphabetic characters and spaces is desired
@@ -90,17 +90,17 @@ def get_chi_square_value(bytes):
     # other_freq = 0.0657
 
     counts = [0] * 28  # First 26 spots for alphas, 27 for spaces, 28 for other
-    length = len(bytes)
+    length = len(text)
 
     for i in range(length):
-        c = bytes[i]
-        if (c <= ord('z') and c >= ord('a')):
+        c = text[i]
+        if is_byte_lowercase_letter(c):
             index = c - ord('a')
             counts[index] = counts[index] + 1
-        elif (c <= ord('Z') and c >= ord('A')):
+        elif is_byte_uppercase_letter(c):
             index = c - ord('A')
             counts[index] = counts[index] + 1
-        elif (c == ord(' ')):
+        elif c == ord(' '):
             counts[26] = counts[26] + 1
         else:
             counts[27] = counts[27] + 1
