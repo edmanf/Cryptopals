@@ -124,13 +124,12 @@ def simple_ecb_oracle_decryption():
 
     # build last byte dictionary
     for i in range(block_size):
-        input = bytes("A", "utf-8") * i
-        ct = simple_ecb_oracle(input, key)
-        ct_dict[input] = ct
+        pt = bytes("A", "utf-8") * i
+        ct = simple_ecb_oracle(pt, key)
+        ct_dict[pt] = ct
 
-    num_blocks = len(ct_dict[bytes()])
     length = detect_unknown_string_length()
-    pt = bytearray("A", "utf-8") * length
+    plaintext = bytearray("A", "utf-8") * length
 
     # for each block
     # go through each last byte possible and save in pt
@@ -138,29 +137,24 @@ def simple_ecb_oracle_decryption():
     for i in range(length):
 
         num_input_bytes = (block_size - (i + 1)) % block_size
-        input = bytearray("A", "utf-8") * num_input_bytes
+        pt = bytearray("A", "utf-8") * num_input_bytes
 
-        ct = ct_dict[bytes(input)]
+        ct = ct_dict[bytes(pt)]
 
         # find the byte that makes a matching block
         for j in range(256):
             test_byte = bytes([j])
 
-            test_input = None
-            start = None
-            end = None
-
-            ct_start = None
             if i < block_size:
                 # input + solved bytes + test byte for first block
                 start = 0
                 end = block_size - num_input_bytes - 1
-                test_input = input + pt[start:end] + test_byte
+                test_input = pt + plaintext[start:end] + test_byte
             else:
                 # solved bytes + test byte for all other blocks
                 start = i - block_size + 1
                 end = start + block_size - 1
-                test_input = pt[start:end] + test_byte
+                test_input = plaintext[start:end] + test_byte
 
             test_ct = simple_ecb_oracle(test_input, key)
 
@@ -170,9 +164,9 @@ def simple_ecb_oracle_decryption():
                 ct_start = start + num_input_bytes
 
             if ct[ct_start:ct_start + block_size] == test_ct[:block_size]:
-                pt[i] = j  # k = test_byte
+                plaintext[i] = j  # k = test_byte
                 break
-    return pt
+    return plaintext
 
 
 def detect_unknown_string_length():
@@ -180,10 +174,10 @@ def detect_unknown_string_length():
     key = get_key_c12()
     ct = simple_ecb_oracle(bytearray(), key)
     length = len(ct)
-    while (True):
+    while True:
         extra += 1
-        input = bytearray("A", "utf-8") * extra
-        ct = simple_ecb_oracle(input, key)
+        pt = bytearray("A", "utf-8") * extra
+        ct = simple_ecb_oracle(pt, key)
         if len(ct) > length:
             # new block made, too many extra input bytes
             return length - (extra - 1)
@@ -194,7 +188,7 @@ def detect_ecb_oracle_block_size(key):
     block_size = 0
     pt = bytearray()
     base = simple_ecb_oracle(pt, key)
-    while (True):
+    while True:
         pt += bytearray("A", "utf-8")
         block_size += 1
         ct = simple_ecb_oracle(pt, key)
@@ -231,8 +225,8 @@ def detect_aes_encryption_mode(ciphertext, key_length, repeat_threshold=3):
     in ecb or cbc mode.
     
     """
-    a = utils.count_repeats(ciphertext, key_length)
-    if utils.count_repeats(ciphertext, key_length) > 3:
+
+    if utils.count_repeats(ciphertext, key_length) > repeat_threshold:
         return Mode.ECB
     else:
         return Mode.CBC
@@ -298,7 +292,7 @@ def aes_cbc_decrypt(ciphertext, key, iv):
     return plaintext
 
 
-def detect_AES_ECB(ciphers, key_size):
+def detect_aes_in_ecb_mode(ciphers, key_size):
     """ Detects the cipher that is most likely to have been encrypted by AES
     in ECB mode and returns it.
     """

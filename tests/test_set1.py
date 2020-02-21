@@ -114,6 +114,6 @@ class TestSet1:
         expected = convert.hex_string_to_bytes(f.read())
         f.close()
 
-        actual = aes.detect_AES_ECB(input_string, key_size)
+        actual = aes.detect_aes_in_ecb_mode(input_string, key_size)
 
         assert actual == expected
