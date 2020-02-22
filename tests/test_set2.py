@@ -65,8 +65,12 @@ class TestSet2:
         assert aes.simple_ecb_oracle_decryption().decode() == expected
 
     def test_c13(self):
+        """ ECB cut-and-paste """
         profile = pfa.profile_attack()
         assert profile.get(bytes("role", "utf-8")) == bytes("admin", "utf-8")
+
+    def test_c14(self):
+        """ Byte-at-a-time ECB decryption (Harder). """
 
 
 class TestMisc:

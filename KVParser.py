@@ -47,6 +47,9 @@ class KVParser:
         # remove padding
         for i in range(block_size):
             index = len(plaintext) - 1 - i
+
+            # profile strings end with a role specification, which only involves alphabet characters
+            # once you hit a letter, the end of the padding has been reached
             if utils.is_byte_letter(plaintext[index]):
                 return KVParser(plaintext[:index + 1])
         return KVParser(plaintext)

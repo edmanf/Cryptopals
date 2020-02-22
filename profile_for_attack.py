@@ -9,6 +9,7 @@ def profile_attack():
     base = KVParser.profile_for(bytearray()).encrypt(key)
     min_length = len(base)
 
+    # find block size
     block_size = 0
     for i in range(1, 512):
         junk_bytes = bytearray("A", "utf-8") * i
@@ -16,15 +17,20 @@ def profile_attack():
         if length > min_length:
             block_size = length - min_length
             break
-    num_pre_bytes = block_size - len("email=")
-    pre_bytes = bytearray("A", "utf-8") * num_pre_bytes  # aligns payload
+
+    # make a block
+    num_pre_bytes = block_size - len("email=")  # aligns user email input to block boundary
+    pre_bytes = bytearray("A", "utf-8") * num_pre_bytes  # align payload
+
     payload = utils.pkcs7_pad(bytearray("admin", "utf-8"), block_size)
     post_bytes = bytearray("B", "utf-8") * (len("user") - 1)  # room for &
 
+    #
     pt = pre_bytes + payload + post_bytes
 
     ct = bytearray(KVParser.profile_for(pt).encrypt(key))
     ct_payload = ct[block_size:2 * block_size]
+
     result = ct[:-1 * block_size] + ct_payload
 
     return KVParser.decrypt_profile(result, key)

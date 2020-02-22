@@ -23,8 +23,8 @@ def hard_ecb_oracle_decryption():
     block_len = base_len
     num_bytes_to_next_block = 0
     for i in range(base_len):
-        input = bytearray("A", "utf-8") * i
-        ct = hard_ecb_oracle(input, key)
+        pt = bytearray("A", "utf-8") * i
+        ct = hard_ecb_oracle(pt, key)
         if len(ct) is not block_len:
             block_len = len(ct) - base_len
             num_bytes_to_next_block = i - 1
