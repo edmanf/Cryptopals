@@ -74,6 +74,39 @@ class TestSet2:
 
 
 class TestMisc:
+    def test_hard_ecb_get_num_prefix_bytes(self):
+        block_len = 16
+        key = aes.get_rand_aes_key(block_len)
+
+        pre = 14
+        def oracle(x, y): return aes.aes_ecb_encrypt(utils.pkcs7_pad(bytearray(b'\xee') * pre + x, block_len), y)
+
+        diff_block_index = 0
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, key, oracle) == 2
+
+        pre = 6
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, key, oracle) == 10
+
+        diff_block_index = 1
+        pre = 20
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, key, oracle) == 12
+
+    def test_hard_ecb_diff_block_index(self):
+        block_len = 16
+        key = aes.get_rand_aes_key(block_len)
+
+        pre = 4
+
+        def oracle(x, y): return aes.aes_ecb_encrypt(utils.pkcs7_pad(bytearray(b'\x01') * pre + x, block_len), y)
+
+        assert aes.get_diff_block_index(block_len, key, oracle) == 0
+
+        pre = 20
+        assert aes.get_diff_block_index(block_len, key, oracle) == 1
+
+        pre = 16
+        assert aes.get_diff_block_index(block_len, key, oracle) == 1
+
     def test_detect_oracle_block_size(self):
         key_len = 16
         key = aes.get_rand_aes_key(key_len)
