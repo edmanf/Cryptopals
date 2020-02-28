@@ -71,6 +71,9 @@ class TestSet2:
 
     def test_c14(self):
         """ Byte-at-a-time ECB decryption (Harder). """
+        expected = aes.get_unknown_string_c12().decode()
+
+        assert  aes.hard_ecb_oracle_decryption().decode() == expected
 
 
 class TestMisc:
