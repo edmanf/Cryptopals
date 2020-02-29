@@ -16,30 +16,19 @@ hard_ecb_prefix = None
 
 
 def hard_ecb_oracle_decryption():
-    key = get_key_c12()
-    base = hard_ecb_oracle(bytearray(), key)
-    base_len = len(base)
-
-    # find block length
-    block_len = base_len
-    for i in range(base_len):
-        pt = bytearray("A", "utf-8") * i
-        ct = hard_ecb_oracle(pt, key)
-        if len(ct) != block_len:
-            block_len = len(ct) - base_len
-            break
+    block_len = detect_ecb_oracle_block_size(hard_ecb_oracle)
 
     # find first changing block index
     # this is the first block that contains user input
-    diff_block_index = get_diff_block_index(block_len, key, hard_ecb_oracle)
+    diff_block_index = get_diff_block_index(block_len, hard_ecb_oracle)
 
     # find how many bytes it takes to make the block stop
     # changing. This will mean rand_prefix has been padded (with 1 extra)
     num_prefix_pad_bytes = get_num_prefix_bytes(
-        diff_block_index, block_len, key, hard_ecb_oracle)
+        diff_block_index, block_len, hard_ecb_oracle)
 
     num_prefix_bytes = diff_block_index * block_len - num_prefix_pad_bytes
-    unknown_string_length = detect_unknown_length(key, hard_ecb_oracle) - num_prefix_bytes
+    unknown_string_length = detect_unknown_length(hard_ecb_oracle) - num_prefix_bytes
 
     pad_bytes = bytearray("A", "utf-8") * num_prefix_pad_bytes
 
@@ -48,7 +37,7 @@ def hard_ecb_oracle_decryption():
     # build last byte dictionary
     for i in range(block_len):
         pt = pad_bytes + bytes("A", "utf-8") * i
-        ct = hard_ecb_oracle(pt, key)
+        ct = hard_ecb_oracle(pt)
         ct_dict[bytes(pt)] = ct
 
     plaintext = bytearray("A", "ascii") * unknown_string_length
@@ -58,6 +47,7 @@ def hard_ecb_oracle_decryption():
     # go through next block
     for i in range(unknown_string_length):
 
+        # Number of bytes required to put the first unsolved byte in the last index of the block
         num_input_bytes = (block_len - (i + 1)) % block_len
         pt = bytearray("A", "utf-8") * num_input_bytes
 
@@ -68,17 +58,19 @@ def hard_ecb_oracle_decryption():
             test_byte = bytes([j])
 
             if i < block_len:
-                # input + solved bytes + test byte for first block
+                # for first block, it will look like
+                # AAAAAAAX or AAAAAAAYX, AAAAAAAYYX
                 start = diff_block_index * block_len
-                end = block_len - num_input_bytes - 1
+                end = block_len - num_input_bytes - 1 + start
                 test_input = pt + plaintext[start:end] + test_byte
             else:
                 # solved bytes + test byte for all other blocks
+                # blocks will look like YYYYYYYX where Y are solved bytes and X is the test
                 start = i - block_len + 1
                 end = start + block_len - 1
                 test_input = plaintext[start:end] + test_byte
 
-            test_ct = simple_ecb_oracle(test_input, key)
+            test_ct = simple_ecb_oracle(test_input)
 
             if i < block_len:
                 ct_start = diff_block_index * block_len
@@ -92,26 +84,25 @@ def hard_ecb_oracle_decryption():
         return plaintext
 
 
-def get_num_prefix_bytes(diff_block_index, block_len, key, function):
+def get_num_prefix_bytes(diff_block_index, block_len, function):
     """ Returns the number of bytes in the ciphertext taken by the encryption function before the bytes
     controlled by user input.
 
     Args:
         diff_block_index: The index of the first ciphertext block that changes with user input
         block_len: length of blocks used by the encryption function
-        key: the key used for the encryption function
         function: the encryption function that takes a bytearray as the first function and the key as the second
 
     Returns:
 
     """
-    target_ct = function(bytearray(b'\xff') * block_len * 4, key)
+    target_ct = function(bytearray(b'\xff') * block_len * 4)
     target_ct_blocks = utils.make_blocks(target_ct, block_len)
     target_block = target_ct_blocks[diff_block_index + 1]
 
     for i in range(1, block_len):
         pt = bytearray(b'\xff') * (i + block_len)  # i is for padding, block_len bytes to match target_block
-        ct = utils.make_blocks(function(pt, key), block_len)
+        ct = utils.make_blocks(function(pt), block_len)
         block = ct[diff_block_index + 1]
         if block == target_block:
             return i
@@ -119,7 +110,7 @@ def get_num_prefix_bytes(diff_block_index, block_len, key, function):
     return 0  # if not 1 through block_len, it must be 0
 
 
-def get_diff_block_index(block_len, key, encryption_function):
+def get_diff_block_index(block_len, encryption_function):
     """ Returns the index of the first block that is different when running an encryption function against
     an empty bytearray, and one with a single byte of input.
 
@@ -128,15 +119,14 @@ def get_diff_block_index(block_len, key, encryption_function):
     Args:
         encryption_function: an encryption function that takes bytearray as the first function and a key as the second
         block_len: length of the block
-        key: the key to run hard_ecb_oracle() under
 
     Returns: The index of the first block where running hard_ecb_oracle against an empty bytearray and a size 1
     bytearray is different.
 
     """
-    base_blocks = utils.make_blocks(encryption_function(bytearray(), key), block_len)
+    base_blocks = utils.make_blocks(encryption_function(bytearray()), block_len)
     single_byte_input = utils.make_blocks(
-        encryption_function(bytearray(b'\x01'), key),
+        encryption_function(bytearray(b'\x01')),
         block_len)
 
     for i in range(len(base_blocks)):
@@ -146,14 +136,13 @@ def get_diff_block_index(block_len, key, encryption_function):
     return len(base_blocks)
 
 
-def hard_ecb_oracle(message, key):
+def hard_ecb_oracle(message):
     """
     Returns the result of encrypting a string of random bytes with the given message and a preset
     unknown string, in that order.
 
     Args:
         message: the user chosen part of the plaintext
-        key: the AES encryption key
 
     Returns: A ciphertext
 
@@ -161,13 +150,14 @@ def hard_ecb_oracle(message, key):
 
     # No target or key instructions given, so use the same as in c12
     unknown_string = get_unknown_string_c12()
+    key = get_key_c12()
 
     pt = bytearray()
-    pt += get_hard_ecb_oracle_key() + bytearray(message) + unknown_string
+    pt += get_hard_ecb_oracle_prefix() + bytearray(message) + unknown_string
     return aes_ecb_encrypt(utils.pkcs7_pad(pt, len(key)), key)
 
 
-def get_hard_ecb_oracle_key():
+def get_hard_ecb_oracle_prefix():
     global hard_ecb_prefix
 
     if not hard_ecb_prefix:
@@ -186,17 +176,17 @@ def simple_ecb_oracle_decryption():
 
     """
     key = get_key_c12()
-    block_size = detect_ecb_oracle_block_size(key)
+    block_size = detect_ecb_oracle_block_size(simple_ecb_oracle)
 
     ct_dict = {}
 
     # build last byte dictionary
     for i in range(block_size):
         pt = bytes("A", "utf-8") * i
-        ct = simple_ecb_oracle(pt, key)
+        ct = simple_ecb_oracle(pt)
         ct_dict[pt] = ct
 
-    length = detect_unknown_length(key, simple_ecb_oracle)
+    length = detect_unknown_length(simple_ecb_oracle)
     plaintext = bytearray("A", "utf-8") * length
 
     # for each block
@@ -224,7 +214,7 @@ def simple_ecb_oracle_decryption():
                 end = start + block_size - 1
                 test_input = plaintext[start:end] + test_byte
 
-            test_ct = simple_ecb_oracle(test_input, key)
+            test_ct = simple_ecb_oracle(test_input)
 
             if i < block_size:
                 ct_start = 0
@@ -237,48 +227,47 @@ def simple_ecb_oracle_decryption():
     return plaintext
 
 
-def detect_unknown_length(key, oracle_function):
+def detect_unknown_length(oracle_function):
     """
     Returns the number of unknown bytes present used in the given oracle function
 
     Args:
-        key:
         oracle_function:
 
     Returns:
 
     """
     extra = 0
-    ct = oracle_function(bytearray(), key)
+    ct = oracle_function(bytearray())
     length = len(ct)
     while True:
         extra += 1
         pt = bytearray("A", "utf-8") * extra
-        ct = oracle_function(pt, key)
+        ct = oracle_function(pt)
         if len(ct) > length:
             # new block made, too many extra input bytes
             return length - (extra - 1)
 
 
-def detect_ecb_oracle_block_size(key):
-    """ Detects the block size of the simple_ecb_oracle. """
-    block_size = 0
-    pt = bytearray()
-    base = simple_ecb_oracle(pt, key)
-    while True:
-        pt += bytearray("A", "utf-8")
-        block_size += 1
-        ct = simple_ecb_oracle(pt, key)
-        if ct[len(pt):] == base:
-            # if all bytes after the inserted one are the same as the base,
-            # then the extra bytes have created one block
-            return block_size
+def detect_ecb_oracle_block_size(oracle_function):
+    """ Detects the block size of the oracle function. """
+
+    base = oracle_function(bytearray())
+    base_len = len(base)
+
+    block_len = base_len
+    for i in range(base_len):
+        pt = bytearray("A", "utf-8") * i
+        ct = oracle_function(pt)
+        if len(ct) != block_len:
+            return len(ct) - base_len
 
 
-def simple_ecb_oracle(plaintext, key):
+def simple_ecb_oracle(plaintext):
     """ Appends plaintext with a hidden message and encrypts it under
-    aes in ecb mode with the given key. """
+    aes in ecb mode. """
     unknown_string = get_unknown_string_c12()
+    key = get_key_c12()
 
     pt = utils.pkcs7_pad(bytearray(plaintext) + unknown_string, len(key))
     ct = aes_ecb_encrypt(pt, key)

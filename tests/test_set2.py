@@ -73,26 +73,30 @@ class TestSet2:
         """ Byte-at-a-time ECB decryption (Harder). """
         expected = aes.get_unknown_string_c12().decode()
 
-        assert  aes.hard_ecb_oracle_decryption().decode() == expected
+        assert aes.hard_ecb_oracle_decryption().decode() == expected
 
 
 class TestMisc:
+    def test_hard_ecb_random_prefix(self):
+        assert aes.get_hard_ecb_oracle_prefix() == aes.get_hard_ecb_oracle_prefix()
+        assert aes.get_hard_ecb_oracle_prefix() is not None
+
     def test_hard_ecb_get_num_prefix_bytes(self):
         block_len = 16
         key = aes.get_rand_aes_key(block_len)
 
         pre = 14
-        def oracle(x, y): return aes.aes_ecb_encrypt(utils.pkcs7_pad(bytearray(b'\xee') * pre + x, block_len), y)
+        def oracle(x): return aes.aes_ecb_encrypt(utils.pkcs7_pad(bytearray(b'\xee') * pre + x, block_len), key)
 
         diff_block_index = 0
-        assert aes.get_num_prefix_bytes(diff_block_index, block_len, key, oracle) == 2
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 2
 
         pre = 6
-        assert aes.get_num_prefix_bytes(diff_block_index, block_len, key, oracle) == 10
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 10
 
         diff_block_index = 1
         pre = 20
-        assert aes.get_num_prefix_bytes(diff_block_index, block_len, key, oracle) == 12
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 12
 
     def test_hard_ecb_diff_block_index(self):
         block_len = 16
@@ -100,35 +104,31 @@ class TestMisc:
 
         pre = 4
 
-        def oracle(x, y): return aes.aes_ecb_encrypt(utils.pkcs7_pad(bytearray(b'\x01') * pre + x, block_len), y)
+        def oracle(x): return aes.aes_ecb_encrypt(utils.pkcs7_pad(bytearray(b'\x01') * pre + x, block_len), key)
 
-        assert aes.get_diff_block_index(block_len, key, oracle) == 0
+        assert aes.get_diff_block_index(block_len, oracle) == 0
 
         pre = 20
-        assert aes.get_diff_block_index(block_len, key, oracle) == 1
+        assert aes.get_diff_block_index(block_len, oracle) == 1
 
         pre = 16
-        assert aes.get_diff_block_index(block_len, key, oracle) == 1
+        assert aes.get_diff_block_index(block_len, oracle) == 1
 
     def test_detect_oracle_block_size(self):
-        key_len = 16
-        key = aes.get_rand_aes_key(key_len)
+        block_size = 16
 
-        actual = aes.detect_ecb_oracle_block_size(key)
-        assert actual == key_len
+        actual = aes.detect_ecb_oracle_block_size(aes.simple_ecb_oracle)
+        assert actual == block_size
 
-        key_len = 32
-        key = aes.get_rand_aes_key(key_len)
-
-        actual = aes.detect_ecb_oracle_block_size(key)
-        assert actual == key_len
+        actual = aes.detect_ecb_oracle_block_size(aes.hard_ecb_oracle)
+        assert actual == block_size
 
     def test_ecb_oracle_encryption_mode(self):
         key = aes.get_rand_aes_key(16)
         pt = bytearray("A", "utf-8") * 256
         expected = aes.Mode.ECB
 
-        actual = aes.detect_aes_encryption_mode(aes.simple_ecb_oracle(pt, key), len(key))
+        actual = aes.detect_aes_encryption_mode(aes.simple_ecb_oracle(pt), len(key))
         assert actual == expected
 
     def test_kvparser(self):
