@@ -32,13 +32,7 @@ def hard_ecb_oracle_decryption():
 
     pad_bytes = bytearray("A", "utf-8") * num_prefix_pad_bytes
 
-    ct_dict = {}
-
-    # build last byte dictionary
-    for i in range(block_len):
-        pt = pad_bytes + bytes("A", "utf-8") * i
-        ct = hard_ecb_oracle(pt)
-        ct_dict[bytes(pt)] = ct
+    ct_dict = get_last_byte_cipher_dict(hard_ecb_oracle, block_len, pad_bytes=pad_bytes)
 
     plaintext = bytearray("A", "ascii") * unknown_string_length
 
@@ -82,6 +76,18 @@ def hard_ecb_oracle_decryption():
                 break
 
         return plaintext
+
+
+def get_last_byte_cipher_dict(oracle_function, block_len, pad_bytes=bytes()):
+    ct_dict = {}
+
+    # build last byte dictionary
+    for i in range(block_len):
+        pt = pad_bytes + bytes("A", "utf-8") * i
+        ct = oracle_function(pt)
+        ct_dict[bytes(pt)] = ct
+
+    return ct_dict
 
 
 def get_num_prefix_bytes(diff_block_index, block_len, function):
@@ -175,16 +181,9 @@ def simple_ecb_oracle_decryption():
     Returns:
 
     """
-    key = get_key_c12()
     block_size = detect_ecb_oracle_block_size(simple_ecb_oracle)
 
-    ct_dict = {}
-
-    # build last byte dictionary
-    for i in range(block_size):
-        pt = bytes("A", "utf-8") * i
-        ct = simple_ecb_oracle(pt)
-        ct_dict[pt] = ct
+    ct_dict = get_last_byte_cipher_dict(simple_ecb_oracle, block_size)
 
     length = detect_unknown_length(simple_ecb_oracle)
     plaintext = bytearray("A", "utf-8") * length
