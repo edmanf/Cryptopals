@@ -55,7 +55,7 @@ def hard_ecb_oracle_decryption():
                 # for first block, it will look like
                 # AAAAAAAX or AAAAAAAYX, AAAAAAAYYX
                 start = diff_block_index * block_len
-                end = block_len - num_input_bytes - 1 + start # - 1 to leave room for test byte
+                end = block_len - num_input_bytes - 1 + start  # - 1 to leave room for test byte
                 test_input = pt + plaintext[start:end] + test_byte
             else:
                 # solved bytes + test byte for all other blocks
@@ -135,8 +135,13 @@ def get_diff_block_index(block_len, encryption_function):
         encryption_function(bytearray(b'\x01')),
         block_len)
 
+    # its possible that \x01 is the correct byte, so need to double check
+    check_input = utils.make_blocks(
+        encryption_function(bytearray(b'\x02')),
+        block_len)
+
     for i in range(len(base_blocks)):
-        if base_blocks[i] != single_byte_input[i]:
+        if base_blocks[i] != single_byte_input[i] or base_blocks[i] != check_input[i]:
             return i
 
     return len(base_blocks)
