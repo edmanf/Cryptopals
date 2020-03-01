@@ -34,7 +34,7 @@ def hard_ecb_oracle_decryption():
 
     ct_dict = get_last_byte_cipher_dict(hard_ecb_oracle, block_len, pad_bytes=pad_bytes)
 
-    plaintext = bytearray("A", "ascii") * unknown_string_length
+    plaintext = bytearray("A", "utf-8") * unknown_string_length
 
     # for each block
     # go through each last byte possible and save in pt
@@ -43,7 +43,7 @@ def hard_ecb_oracle_decryption():
 
         # Number of bytes required to put the first unsolved byte in the last index of the block
         num_input_bytes = (block_len - (i + 1)) % block_len
-        pt = bytearray("A", "utf-8") * num_input_bytes
+        pt = pad_bytes + bytearray("A", "utf-8") * num_input_bytes
 
         ct = ct_dict[bytes(pt)]
 
@@ -55,14 +55,14 @@ def hard_ecb_oracle_decryption():
                 # for first block, it will look like
                 # AAAAAAAX or AAAAAAAYX, AAAAAAAYYX
                 start = diff_block_index * block_len
-                end = block_len - num_input_bytes - 1 + start
+                end = block_len - num_input_bytes - 1 + start # - 1 to leave room for test byte
                 test_input = pt + plaintext[start:end] + test_byte
             else:
                 # solved bytes + test byte for all other blocks
                 # blocks will look like YYYYYYYX where Y are solved bytes and X is the test
                 start = i - block_len + 1
                 end = start + block_len - 1
-                test_input = plaintext[start:end] + test_byte
+                test_input = pad_bytes + plaintext[start:end] + test_byte
 
             test_ct = simple_ecb_oracle(test_input)
 
