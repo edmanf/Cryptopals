@@ -94,9 +94,21 @@ class TestMisc:
         pre = 6
         assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 10
 
+        pre = 0
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 0
+
+        pre = 15
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 1
+
         diff_block_index = 1
         pre = 20
         assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 12
+
+        pre = 16
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 0
+
+        pre = 31
+        assert aes.get_num_prefix_bytes(diff_block_index, block_len, oracle) == 1
 
     def test_hard_ecb_diff_block_index(self):
         block_len = 16
@@ -108,11 +120,24 @@ class TestMisc:
 
         assert aes.get_diff_block_index(block_len, oracle) == 0
 
+        pre = 0
+        assert aes.get_diff_block_index(block_len, oracle) == 0
+
+        pre = 15
+        assert aes.get_diff_block_index(block_len, oracle) == 0
+
         pre = 20
         assert aes.get_diff_block_index(block_len, oracle) == 1
 
         pre = 16
         assert aes.get_diff_block_index(block_len, oracle) == 1
+
+        pre = 31
+        assert aes.get_diff_block_index(block_len, oracle) == 1
+
+        pre = 32
+        assert aes.get_diff_block_index(block_len, oracle) == 2
+
 
     def test_detect_oracle_block_size(self):
         block_size = 16
