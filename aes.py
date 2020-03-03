@@ -21,16 +21,17 @@ def hard_ecb_oracle_decryption():
     # find first changing block index
     # this is the first block that contains user input
     diff_block_index = get_diff_block_index(block_len, hard_ecb_oracle)
+    target_block_index = diff_block_index + 1  # the diff block will be padded out
 
     # find how many bytes it takes to make the block stop
     # changing. This will mean rand_prefix has been padded (with 1 extra)
     num_prefix_pad_bytes = get_num_prefix_bytes(
         diff_block_index, block_len, hard_ecb_oracle)
 
-    num_prefix_bytes = diff_block_index * block_len - num_prefix_pad_bytes
+    num_prefix_bytes = diff_block_index * block_len + (block_len - num_prefix_pad_bytes)
     unknown_string_length = detect_unknown_length(hard_ecb_oracle) - num_prefix_bytes
 
-    pad_bytes = bytearray("A", "utf-8") * num_prefix_pad_bytes
+    pad_bytes = bytearray("P", "utf-8") * num_prefix_pad_bytes
 
     ct_dict = get_last_byte_cipher_dict(hard_ecb_oracle, block_len, pad_bytes=pad_bytes)
 
@@ -53,10 +54,10 @@ def hard_ecb_oracle_decryption():
 
             if i < block_len:
                 # for first block, it will look like
-                # AAAAAAAX or AAAAAAAYX, AAAAAAAYYX
-                start = diff_block_index * block_len
-                end = block_len - num_input_bytes - 1 + start  # - 1 to leave room for test byte
-                test_input = pt + plaintext[start:end] + test_byte
+                # AAAAAAAX or AAAAAAYX, AAAAAYYX
+                start = i
+                end = block_len + i - 1
+                test_input = pad_bytes + plaintext[start:end] + test_byte
             else:
                 # solved bytes + test byte for all other blocks
                 # blocks will look like YYYYYYYX where Y are solved bytes and X is the test
@@ -64,14 +65,15 @@ def hard_ecb_oracle_decryption():
                 end = start + block_len - 1
                 test_input = pad_bytes + plaintext[start:end] + test_byte
 
-            test_ct = simple_ecb_oracle(test_input)
+            test_ct = hard_ecb_oracle(test_input)
 
             if i < block_len:
-                ct_start = diff_block_index * block_len
+                ct_start = target_block_index * block_len
             else:
                 ct_start = start + num_input_bytes
 
-            if ct[ct_start:ct_start + block_len] == test_ct[:block_len]:
+            test_block_start = target_block_index * block_len
+            if ct[ct_start:ct_start + block_len] == test_ct[test_block_start:test_block_start + block_len]:
                 plaintext[i] = j  # k = test_byte
                 break
 
