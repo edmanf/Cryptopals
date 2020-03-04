@@ -1,5 +1,6 @@
 import io
 
+import aes_oracle
 import convert
 import aes
 import utils
@@ -114,6 +115,6 @@ class TestSet1:
         expected = convert.hex_string_to_bytes(f.read())
         f.close()
 
-        actual = aes.detect_aes_in_ecb_mode(input_string, key_size)
+        actual = aes_oracle.detect_aes_in_ecb_mode(input_string, key_size)
 
         assert actual == expected
