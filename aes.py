@@ -55,9 +55,9 @@ def hard_ecb_oracle_decryption():
             if i < block_len:
                 # for first block, it will look like
                 # AAAAAAAX or AAAAAAYX, AAAAAYYX
-                start = i
-                end = block_len + i - 1
-                test_input = pad_bytes + plaintext[start:end] + test_byte
+                start = 0
+                end = i
+                test_input = pt + plaintext[start:end] + test_byte
             else:
                 # solved bytes + test byte for all other blocks
                 # blocks will look like YYYYYYYX where Y are solved bytes and X is the test
@@ -74,10 +74,9 @@ def hard_ecb_oracle_decryption():
 
             test_block_start = target_block_index * block_len
             if ct[ct_start:ct_start + block_len] == test_ct[test_block_start:test_block_start + block_len]:
-                plaintext[i] = j  # k = test_byte
+                plaintext[i] = j  # set correct test_byte
                 break
-
-        return plaintext
+    return plaintext
 
 
 def get_last_byte_cipher_dict(oracle_function, block_len, pad_bytes=bytes()):
