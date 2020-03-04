@@ -55,22 +55,15 @@ def hard_ecb_oracle_decryption():
             if i < block_len:
                 # for first block, it will look like
                 # AAAAAAAX or AAAAAAYX, AAAAAYYX
-                start = 0
-                end = i
-                test_input = pt + plaintext[start:end] + test_byte
+                test_input = pt + plaintext[0:i] + test_byte
             else:
                 # solved bytes + test byte for all other blocks
                 # blocks will look like YYYYYYYX where Y are solved bytes and X is the test
-                start = i - block_len + 1
-                end = start + block_len - 1
-                test_input = pad_bytes + plaintext[start:end] + test_byte
+                test_input = pad_bytes + plaintext[i - block_len + 1:i] + test_byte
 
             test_ct = hard_ecb_oracle(test_input)
 
-            if i < block_len:
-                ct_start = target_block_index * block_len
-            else:
-                ct_start = start + num_input_bytes
+            ct_start = (target_block_index + i // block_len) * block_len
 
             test_block_start = target_block_index * block_len
             if ct[ct_start:ct_start + block_len] == test_ct[test_block_start:test_block_start + block_len]:
