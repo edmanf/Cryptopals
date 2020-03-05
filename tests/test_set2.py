@@ -19,7 +19,7 @@ class TestSet2:
 
         message = bytearray("YELLOW SUBMARINE", "utf-8")
         pad_length = 16
-        expected = "YELLOW SUBMARINE"
+        expected = "YELLOW SUBMARINE\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10"
         actual = utils.pkcs7_pad(message, pad_length)
         assert actual.decode() == expected
 

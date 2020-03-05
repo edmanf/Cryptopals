@@ -30,16 +30,29 @@ def count_repeats(msg, block_length):
 
 
 def pkcs7_pad(message, pad_length):
-    """ Pads a message by adding pad_byte to the end of a message
-    until it is a multiple of pad_length and return the result."""
+    """
+    Returns a message that has been padded to a multiple of pad_length by appending it with N bytes,
+    where the value of each byte will be the number of bytes added, N. If the
+    message is already at the pad_length, an entire block of padding bytes will be added.
+
+    Args:
+        message: The message for padding.
+        pad_length: The length that the message should be a multiple of.
+
+    Returns: A padded version of the message.
+
+    """
 
     padded = message.copy()
     diff = len(message) % pad_length
 
     if diff > 0:
         num_pad_bytes = pad_length - diff
-        pad_byte = bytes(chr(num_pad_bytes), "ascii")
-        padded += pad_byte * num_pad_bytes
+    elif diff == 0:
+        num_pad_bytes = pad_length
+
+    pad_byte = bytes(chr(num_pad_bytes), "ascii")
+    padded += pad_byte * num_pad_bytes
     return padded
 
 
