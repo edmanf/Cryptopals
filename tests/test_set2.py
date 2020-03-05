@@ -92,17 +92,18 @@ class TestSet2:
             string = "ICE ICE BABY\x01\x02\x03\x04"
             utils.is_valid_pkcs7(string)
 
-        string = "ICE ICE BABY"
-        assert utils.is_valid_pkcs7(string) is True
+        with pytest.raises(ValueError):
+            string = "ICE ICE BABY"
+            utils.is_valid_pkcs7(string)
 
         with pytest.raises(ValueError):
             string = "A\x00"
             utils.is_valid_pkcs7(string)
 
-        string = "A\x01"
+        string = "\x01\x01"  # "\x01" padded to length 1
         assert utils.is_valid_pkcs7(string) is True
 
-        string = "\x01"
+        string = "\x01"  # "" padded to length 1
         assert utils.is_valid_pkcs7(string) is True
 
         with pytest.raises(ValueError):

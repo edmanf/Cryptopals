@@ -56,6 +56,28 @@ def pkcs7_pad(message, pad_length):
     return padded
 
 
+def is_valid_pkcs7(message):
+    error_message = "Invalid PKCS#7 padding."
+    last_byte = message[-1:]
+    last_byte_num = ord(last_byte)
+    length = len(message)
+
+    if last_byte_num > length:
+        raise ValueError(error_message)
+
+    match_count = 1
+    for i in range(1, last_byte_num):
+        if message[length - i - 1] == last_byte:
+            match_count += 1
+        else:
+            raise ValueError(error_message)
+
+    if match_count == last_byte_num:
+        return True
+
+    raise ValueError(error_message)
+
+
 def get_hamming_distance(a, b):
     """ Compute the hamming distance between two strings as bytes-like and return it.
     Hamming distance is the number of different bits between strings.
