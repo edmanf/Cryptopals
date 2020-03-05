@@ -64,8 +64,9 @@ class TestSet2:
     def test_c12(self):
         """ Byte-at-a-time ECB decryption (Simple) """
         expected = aes_oracle.get_unknown_string_c12().decode()
+        actual = aes_oracle.simple_ecb_oracle_decryption().decode()
 
-        assert aes_oracle.simple_ecb_oracle_decryption().decode() == expected
+        assert actual == expected
 
     def test_c13(self):
         """ ECB cut-and-paste """

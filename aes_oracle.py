@@ -233,16 +233,16 @@ def detect_unknown_length(oracle_function):
     Returns:
 
     """
-    extra = 0
+    extra = 1
     ct = oracle_function(bytearray())
     length = len(ct)
     while True:
-        extra += 1
         pt = bytearray("A", "utf-8") * extra
         ct = oracle_function(pt)
         if len(ct) > length:
             # new block made, too many extra input bytes
-            return length - (extra - 1)
+            return length - extra
+        extra += 1
 
 
 def detect_ecb_oracle_block_size(oracle_function):
