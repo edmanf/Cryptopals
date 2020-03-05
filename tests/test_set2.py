@@ -1,3 +1,5 @@
+import pytest
+
 import aes_oracle
 import utils
 import convert
@@ -75,6 +77,43 @@ class TestSet2:
         expected = aes_oracle.get_unknown_string_c12().decode()
 
         assert aes_oracle.hard_ecb_oracle_decryption().decode() == expected
+
+    def test_c15(self):
+        """ PKCS#7 padding validation. """
+        string = "ICE ICE BABY\x04\x04\x04\x04"
+        assert utils.is_valid_pkcs7(string) is True
+
+        with pytest.raises(ValueError):
+            string = "ICE ICE BABY\x05\x05\x05\x05"
+            utils.is_valid_pkcs7(string)
+
+        with pytest.raises(ValueError):
+            string = "ICE ICE BABY\x01\x02\x03\x04"
+            utils.is_valid_pkcs7(string)
+
+        string = "ICE ICE BABY"
+        assert utils.is_valid_pkcs7(string) is True
+
+        with pytest.raises(ValueError):
+            string = "A\x00"
+            utils.is_valid_pkcs7(string)
+
+        string = "A\x01"
+        assert utils.is_valid_pkcs7(string) is True
+
+        string = "\x01"
+        assert utils.is_valid_pkcs7(string) is True
+
+        with pytest.raises(ValueError):
+            string = "\x02"
+            utils.is_valid_pkcs7(string)
+
+        string = "YELLOW SUBMARINE\x04\x04\x04\x04"
+        assert utils.is_valid_pkcs7(string) is True
+
+        with pytest.raises(ValueError):
+            string = "YELLOW SUBMARINE\x05\x05\x05\x05"
+            utils.is_valid_pkcs7(string)
 
 
 class TestMisc:
