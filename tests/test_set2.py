@@ -6,6 +6,7 @@ import convert
 import aes
 from KVParser import KVParser
 import profile_for_attack as pfa
+import cbc_bitflipping
 
 
 class TestSet2:
@@ -119,6 +120,29 @@ class TestSet2:
 
 
 class TestMisc:
+    def test_cbc_bitflipping_is_admin(self):
+        string = b"hello;admin=true;"
+        assert cbc_bitflipping.is_admin(string)
+
+        string = b"comment1=cooking%20MCs;userdata="
+        assert not cbc_bitflipping.is_admin(string)
+
+    def test_cbc_bitflipping_sanitize(self):
+        string = b"comment1=cooking%20MCs;userdata="
+        actual = cbc_bitflipping.sanitize(string)
+        expected = "comment1'='cooking%20MCs';'userdata'='"
+        assert actual == expected
+
+        string = b";comment2=%20like%20a%20pound%20of%20bacon"
+        actual = cbc_bitflipping.sanitize(string)
+        expected = "';'comment2'='%20like%20a%20pound%20of%20bacon"
+        assert actual == expected
+
+        string = b";admin=true;"
+        expected = "';'admin'='true';'"
+        actual = cbc_bitflipping.sanitize(string)
+        assert actual == expected
+
     def test_hard_ecb_random_prefix(self):
         assert aes_oracle.get_hard_ecb_oracle_prefix() == aes_oracle.get_hard_ecb_oracle_prefix()
         assert aes_oracle.get_hard_ecb_oracle_prefix() is not None
