@@ -120,6 +120,11 @@ class TestSet2:
 
 
 class TestMisc:
+    def test_cbc_bitflipping_decrypt(self):
+        string = b"hello;admin=true;"
+        cipher_text = cbc_bitflipping.encrypt(string)
+        assert not cbc_bitflipping.is_admin(cipher_text)
+
     def test_cbc_bitflipping_is_admin(self):
         string = b"hello;admin=true;"
         assert cbc_bitflipping.is_admin(string)
@@ -130,16 +135,16 @@ class TestMisc:
     def test_cbc_bitflipping_sanitize(self):
         string = b"comment1=cooking%20MCs;userdata="
         actual = cbc_bitflipping.sanitize(string)
-        expected = "comment1'='cooking%20MCs';'userdata'='"
+        expected = b"comment1'='cooking%20MCs';'userdata'='"
         assert actual == expected
 
         string = b";comment2=%20like%20a%20pound%20of%20bacon"
         actual = cbc_bitflipping.sanitize(string)
-        expected = "';'comment2'='%20like%20a%20pound%20of%20bacon"
+        expected = b"';'comment2'='%20like%20a%20pound%20of%20bacon"
         assert actual == expected
 
         string = b";admin=true;"
-        expected = "';'admin'='true';'"
+        expected = b"';'admin'='true';'"
         actual = cbc_bitflipping.sanitize(string)
         assert actual == expected
 
