@@ -121,7 +121,7 @@ class TestSet2:
 
 class TestMisc:
     def test_cbc_bitflipping_decrypt(self):
-        string = b"hello;admin=true;"
+        string = "hello;admin=true;"
         cipher_text = cbc_bitflipping.encrypt(string)
         assert not cbc_bitflipping.is_admin(cipher_text)
 
@@ -133,18 +133,18 @@ class TestMisc:
         assert not cbc_bitflipping.is_admin(string)
 
     def test_cbc_bitflipping_sanitize(self):
-        string = b"comment1=cooking%20MCs;userdata="
+        string = "comment1=cooking%20MCs;userdata="
         actual = cbc_bitflipping.sanitize(string)
-        expected = b"comment1'='cooking%20MCs';'userdata'='"
+        expected = "comment1'='cooking%20MCs';'userdata'='"
         assert actual == expected
 
-        string = b";comment2=%20like%20a%20pound%20of%20bacon"
+        string = ";comment2=%20like%20a%20pound%20of%20bacon"
         actual = cbc_bitflipping.sanitize(string)
-        expected = b"';'comment2'='%20like%20a%20pound%20of%20bacon"
+        expected = "';'comment2'='%20like%20a%20pound%20of%20bacon"
         assert actual == expected
 
-        string = b";admin=true;"
-        expected = b"';'admin'='true';'"
+        string = ";admin=true;"
+        expected = "';'admin'='true';'"
         actual = cbc_bitflipping.sanitize(string)
         assert actual == expected
 
@@ -157,6 +157,7 @@ class TestMisc:
         key = aes.get_rand_aes_key(block_len)
 
         pre = 14
+
         def oracle(x): return aes.aes_ecb_encrypt(utils.pkcs7_pad(bytearray(b'\xee') * pre + x, block_len), key)
 
         diff_block_index = 0
@@ -208,7 +209,6 @@ class TestMisc:
 
         pre = 32
         assert aes_oracle.get_diff_block_index(block_len, oracle) == 2
-
 
     def test_detect_oracle_block_size(self):
         block_size = 16
