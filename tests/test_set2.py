@@ -118,6 +118,9 @@ class TestSet2:
             string = "YELLOW SUBMARINE\x05\x05\x05\x05"
             utils.is_valid_pkcs7(string)
 
+    def test_c16(self):
+        assert cbc_bitflipping.is_admin(cbc_bitflipping.get_malicious_ciphertext())
+
 
 class TestMisc:
     def test_cbc_bitflipping_decrypt(self):
