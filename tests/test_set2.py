@@ -119,12 +119,13 @@ class TestSet2:
             utils.is_valid_pkcs7(string)
 
     def test_c16(self):
-        assert cbc_bitflipping.is_admin(cbc_bitflipping.get_malicious_ciphertext())
+        ct = cbc_bitflipping.get_malicious_ciphertext()
+        assert cbc_bitflipping.is_cipher_text_admin(ct)
 
 
 class TestMisc:
     def test_cbc_bitflipping_decrypt(self):
-        string = "hello;admin=true;"
+        string = b"hello;admin=true;"
         cipher_text = cbc_bitflipping.encrypt(string)
         assert not cbc_bitflipping.is_admin(cipher_text)
 
@@ -136,18 +137,18 @@ class TestMisc:
         assert not cbc_bitflipping.is_admin(string)
 
     def test_cbc_bitflipping_sanitize(self):
-        string = "comment1=cooking%20MCs;userdata="
+        string = b"comment1=cooking%20MCs;userdata="
         actual = cbc_bitflipping.sanitize(string)
-        expected = "comment1'='cooking%20MCs';'userdata'='"
+        expected = b"comment1'='cooking%20MCs';'userdata'='"
         assert actual == expected
 
-        string = ";comment2=%20like%20a%20pound%20of%20bacon"
+        string = b";comment2=%20like%20a%20pound%20of%20bacon"
         actual = cbc_bitflipping.sanitize(string)
-        expected = "';'comment2'='%20like%20a%20pound%20of%20bacon"
+        expected = b"';'comment2'='%20like%20a%20pound%20of%20bacon"
         assert actual == expected
 
-        string = ";admin=true;"
-        expected = "';'admin'='true';'"
+        string = b";admin=true;"
+        expected = b"';'admin'='true';'"
         actual = cbc_bitflipping.sanitize(string)
         assert actual == expected
 

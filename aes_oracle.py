@@ -20,8 +20,6 @@ def hard_ecb_oracle_decryption():
     diff_block_index = get_diff_block_index(block_len, hard_ecb_oracle)
     target_block_index = diff_block_index + 1  # the diff block will be padded out
 
-    # find how many bytes it takes to make the block stop
-    # changing. This will mean rand_prefix has been padded (with 1 extra)
     num_prefix_pad_bytes = get_num_prefix_bytes(
         diff_block_index, block_len, hard_ecb_oracle)
 
@@ -94,12 +92,12 @@ def get_num_prefix_bytes(diff_block_index, block_len, function):
     Returns:
 
     """
-    target_ct = function(bytearray(b'\xff') * block_len * 4)
+    target_ct = function(bytearray("P", "utf-8") * block_len * 4)
     target_ct_blocks = utils.make_blocks(target_ct, block_len)
     target_block = target_ct_blocks[diff_block_index + 1]
 
     for i in range(1, block_len):
-        pt = bytearray(b'\xff') * (i + block_len)  # i is for padding, block_len bytes to match target_block
+        pt = bytearray("P", "utf-8") * (i + block_len)  # i is for padding, block_len bytes to match target_block
         ct = utils.make_blocks(function(pt), block_len)
         block = ct[diff_block_index + 1]
         if block == target_block:
