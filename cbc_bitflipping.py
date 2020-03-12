@@ -11,23 +11,25 @@ iv = aes.get_rand_aes_key(16)  # unknown to attacker
 def get_malicious_ciphertext():
     diff_block_index = aes_oracle.get_diff_block_index(16, encrypt)
     num_pad_bytes = aes_oracle.get_num_prefix_bytes(diff_block_index, 16, encrypt)
-    pad_bytes = bytearray("P", "utf-8") * num_pad_bytes
+    pad_bytes = bytearray(num_pad_bytes)
 
-    pt_block = bytearray("\x00", "utf-8") * 16
+    # guarantees that diff_block_index + 1 is user controlled
+    if num_pad_bytes == 0:
+        pt_block = bytearray(32)
+    else:
+        pt_block = bytearray(16)
     plaintext_input = pad_bytes + pt_block
 
     ciphertext = encrypt(plaintext_input)
     ct_blocks = utils.make_blocks(ciphertext, 16)
-    target_ct_block = ct_blocks[diff_block_index + 1]
+    target_ct_block = ct_blocks[diff_block_index]
 
-    payload = bytearray(";admin=true;", "utf-8")
+    payload = bytearray(";admin=true;", "utf-8") + bytearray(4)
 
-    malicious_ct_block = xor.repeating_key_xor(target_ct_block, pt_block)
-    malicious_ct_block = xor.repeating_key_xor(malicious_ct_block, payload)
-    malicious_ct_block = xor.repeating_key_xor(malicious_ct_block, payload)
+    malicious_ct_block = xor.fixed_xor(target_ct_block, pt_block[:16])
+    malicious_ct_block = xor.fixed_xor(malicious_ct_block, payload)
 
-
-    ct_blocks[diff_block_index + 1] = malicious_ct_block
+    ct_blocks[diff_block_index] = malicious_ct_block
     return bytearray().join(ct_blocks)
 
 
@@ -56,4 +58,4 @@ def sanitize(input_bytes):
 
 
 def is_admin(input_bytes):
-    return bytearray(";admin=true;", "utf-8") in input_bytes
+    return b";admin=true;" in input_bytes
