@@ -1,5 +1,5 @@
-import utils
-import aes
+from src.cryptopals import utils
+from src.cryptopals import aes
 
 class TestMisc:
     def test_AES_ECB(self):

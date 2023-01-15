@@ -1,7 +1,7 @@
 """ Methods for encryption and decryption."""
 
-import utils
-import xor
+from src.cryptopals import utils
+from src.cryptopals import xor
 
 from Crypto.Cipher import AES
 

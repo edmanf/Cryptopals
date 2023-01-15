@@ -1,4 +1,4 @@
-import Crypto.Random
+import secrets
 
 """ A collection of utility functions. """
 
@@ -195,4 +195,4 @@ def res_file_open(filename):
 
 def get_random_bytes(length=16):
     """ Return a bytearray with random bytes of given length. """
-    return bytearray(Crypto.Random.get_random_bytes(length))
+    return bytearray(secrets.token_bytes(length))

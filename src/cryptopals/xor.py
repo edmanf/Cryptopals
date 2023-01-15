@@ -1,5 +1,5 @@
 import sys
-import utils
+from src.cryptopals import utils
 
 
 def fixed_xor(a, b):
