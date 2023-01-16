@@ -2,17 +2,19 @@ import sys
 from src.cryptopals import utils
 
 
-def fixed_xor(a, b):
+def fixed_length_xor(a, b):
     """ XOR two equal length buffers and return the result.
     
     Keyword arguments:
     a -- a bytes object
     b -- a bytes object
     """
+    if len(a) != len(b):
+        raise ValueError("Lengths must be equal.")
     result = bytearray(b)
     for i in range(len(a)):
         result[i] = a[i] ^ b[i]
-    return result
+    return bytes(result)
 
 
 def single_byte_xor(enc):
