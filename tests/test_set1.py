@@ -1,20 +1,23 @@
 import io
+import unittest
 
-import aes_oracle
-import convert
-import aes
-import utils
-import xor
+from src.cryptopals import convert
+from src.cryptopals import xor
+from src.cryptopals import utils
+from src.cryptopals import aes_oracle
+#from src.cryptopals import aes
 
 
-class TestSet1:
+
+
+class TestSet1(unittest.TestCase):
     def test_c1(self):
         """ Convert hex to base64 """
         plain = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"
         expected = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
         actual = convert.hex_string_to_b64(plain).decode()
 
-        assert actual == expected
+        self.assertEqual(actual, expected)
 
     def test_c2(self):
         """ Fixed XOR """
@@ -24,7 +27,7 @@ class TestSet1:
 
         a = convert.hex_string_to_bytes(input1)
         b = convert.hex_string_to_bytes(input2)
-        actual = xor.fixed_xor(a, b).hex()
+        actual = xor.fixed_length_xor(a, b).hex()
 
         assert actual == expected
 
@@ -75,7 +78,7 @@ class TestSet1:
         b64_text = f.read()
         f.close()
 
-        input_text = convert.b64_string_to_bytes(b64_text)
+        input_text = convert.b64_string_to_hex(b64_text)
         actual = xor.decrypt_repeating_key_xor(input_text)
 
         assert (actual.decode() == expected)
@@ -90,7 +93,7 @@ class TestSet1:
         b64_text = f.read()
         f.close()
 
-        ciphertext = convert.b64_string_to_bytes(b64_text)
+        ciphertext = convert.b64_string_to_hex(b64_text)
 
         f = utils.res_file_open(expected_file)
         expected = f.read()
@@ -118,3 +121,6 @@ class TestSet1:
         actual = aes_oracle.detect_aes_in_ecb_mode(input_string, key_size)
 
         assert actual == expected
+        
+if __name__ == "__main__":
+    unittest.main()

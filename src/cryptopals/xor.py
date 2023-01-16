@@ -1,5 +1,5 @@
 import sys
-from src.cryptopals import utils
+from src.cryptopals import utils as utils
 
 
 def fixed_length_xor(a, b):
@@ -26,19 +26,19 @@ def single_byte_xor(enc):
     """
     best_score = sys.maxsize
     best_key = None
-    plain = None
+    result = None
 
     length = len(enc)
     for i in range(0, 256):
         key = bytearray(length)
         key[0:length] = [i] * length
-        res = fixed_xor(enc, key)
-        score = utils.get_chi_square_value(res)
+        decrypted = fixed_length_xor(enc, key)
+        score = utils.get_chi_square_value(decrypted)
         if (score < best_score):
             best_score = score
             best_key = i
-            plain = res
-    return SingleByteXORResult(best_key, best_score, plain)
+            result = decrypted
+    return SingleByteXORResult(best_key, best_score, result)
 
 
 def detect_single_character_xor(messages):
@@ -53,7 +53,6 @@ def detect_single_character_xor(messages):
     for message in messages:
         result = single_byte_xor(message)
         if result.score < best_result.score:
-            print(result.message)
             best_result = result
     return best_result
 
