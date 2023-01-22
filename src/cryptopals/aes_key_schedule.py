@@ -1,5 +1,16 @@
 from src.cryptopals import xor
 
+def left_circular_bitshift(n):
+    if len(n) != 1:
+        raise ValueError("Argument must be a single byte.")
+    result = (int.from_bytes(n) << 1) & 0xff
+    return (result | get_most_significant_bit(n)).to_bytes()
+    
+    
+    
+def get_most_significant_bit(n):
+    return (int.from_bytes(n) & 0x80) >> 7
+
 def rot_word(word):
     word_length = len(word)
     return bytes(word[1:word_length] + word[0:1])
