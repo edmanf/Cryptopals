@@ -21,6 +21,8 @@ class TestAesKeySchedule(unittest.TestCase):
     def test_sbox_cell(self):
         self.assertEqual(aes_key_schedule.get_sub_byte(b"\x9a"), b"\xb8")
         self.assertEqual(aes_key_schedule.get_sub_byte(b"\x00"), b"\x63")
+        self.assertEqual(aes_key_schedule.get_sub_byte(b"\xff"), b"\x16")
+        self.assertEqual(aes_key_schedule.get_sub_byte(b"\x5a"), b"\xbe")
             
     def test_left_circular_bitshift(self):
         with self.assertRaises(ValueError, msg = "Argument must be a single byte."):

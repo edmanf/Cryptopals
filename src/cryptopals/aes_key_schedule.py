@@ -34,10 +34,16 @@ inverse_s_box = [\
     ["\x1f", b"\xdd", b"\xa8", b"\x33", b"\x88", b"\x07", b"\xc7", b"\x31", b"\xb1", b"\x12", b"\x10", b"\x59", b"\x27", b"\x80", b"\xec", b"\x5f"], \
     [b"\x60", b"\x51", b"\x7f", b"\xa9", b"\x19", b"\xb5", b"\x4a", b"\x0d", b"\x2d", b"\xe5", b"\x7a", b"\x9f", b"\x93", b"\xc9", b"\x9c", b"\xef"], \
     [b"\xa0", b"\xe0", b"\x3b", b"\x4d", b"\xae", b"\x2a", b"\xf5", b"\xb0", b"\xc8", b"\xeb", b"\xbb", b"\x3c", b"\x83", b"\x53", b"\x99", b"\x61"], \
-    [b"\x17", b"\x2b", b"\x04", b"\x7e", b"\xba", b"\x77", b"\xd6", b"\x26", b"\xe1", b"\x69", b"\x14", b"\x63", b"\x55", b"\x21", b"\x0c", b"\x7d"]
+    [b"\x17", b"\x2b", b"\x04", b"\x7e", b"\xba", b"\x77", b"\xd6", b"\x26", b"\xe1", b"\x69", b"\x14", b"\x63", b"\x55", b"\x21", b"\x0c", b"\x7d"]]
 
 def get_sub_byte(b):
+    return forward_s_box[get_most_significant_nibble(b)][get_least_significant_nibble(b)]
     
+def get_most_significant_nibble(b):
+    return (int.from_bytes(b) & 0xf0) >> 4
+    
+def get_least_significant_nibble(b):
+    return int.from_bytes(b) & 0x0f
 
 def left_circular_bitshift(n):
     if len(n) != 1:
