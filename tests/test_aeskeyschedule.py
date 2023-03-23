@@ -23,6 +23,31 @@ class TestAesKeySchedule(unittest.TestCase):
         self.assertEqual(aes_key_schedule.get_sub_byte(b"\x00"), b"\x63")
         self.assertEqual(aes_key_schedule.get_sub_byte(b"\xff"), b"\x16")
         self.assertEqual(aes_key_schedule.get_sub_byte(b"\x5a"), b"\xbe")
+        
+    def test_inverse_sbox(self):
+        self.assertEqual(aes_key_schedule.get_inverse_sub_byte(b"\xb8"), b"\x9a")
+        self.assertEqual(aes_key_schedule.get_inverse_sub_byte(b"\x63"), b"\x00")
+        self.assertEqual(aes_key_schedule.get_inverse_sub_byte(b"\x16"), b"\xff")
+        self.assertEqual(aes_key_schedule.get_inverse_sub_byte(b"\xbe"), b"\x5a")
+        
+    def test_most_sig_nib(self):
+        self.assertEqual(aes_key_schedule.get_most_significant_nibble(b"\x9a"), 9)
+        self.assertEqual(aes_key_schedule.get_most_significant_nibble(b"\x00"), 0)
+        self.assertEqual(aes_key_schedule.get_most_significant_nibble(b"\xff"), 15)
+        self.assertEqual(aes_key_schedule.get_most_significant_nibble(b"\x5a"), 5)
+        self.assertEqual(aes_key_schedule.get_most_significant_nibble(b"\xb8"), 11)
+        self.assertEqual(aes_key_schedule.get_most_significant_nibble(b"\x63"), 6)
+        self.assertEqual(aes_key_schedule.get_most_significant_nibble(b"\x16"), 1)
+        
+    
+    def test_least_sig_nib(self):
+        self.assertEqual(aes_key_schedule.get_least_significant_nibble(b"\x9a"), 10)
+        self.assertEqual(aes_key_schedule.get_least_significant_nibble(b"\x00"), 0)
+        self.assertEqual(aes_key_schedule.get_least_significant_nibble(b"\xff"), 15)
+        self.assertEqual(aes_key_schedule.get_least_significant_nibble(b"\xb8"), 8)
+        self.assertEqual(aes_key_schedule.get_least_significant_nibble(b"\x63"), 3)
+        self.assertEqual(aes_key_schedule.get_least_significant_nibble(b"\x16"), 6)
+        self.assertEqual(aes_key_schedule.get_least_significant_nibble(b"\xbe"), 14)
             
     def test_left_circular_bitshift(self):
         with self.assertRaises(ValueError, msg = "Argument must be a single byte."):

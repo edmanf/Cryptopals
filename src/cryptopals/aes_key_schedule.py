@@ -39,6 +39,9 @@ inverse_s_box = [\
 def get_sub_byte(b):
     return forward_s_box[get_most_significant_nibble(b)][get_least_significant_nibble(b)]
     
+def get_inverse_sub_byte(b):
+    return inverse_s_box[get_most_significant_nibble(b)][get_least_significant_nibble(b)]
+    
 def get_most_significant_nibble(b):
     return (int.from_bytes(b) & 0xf0) >> 4
     
